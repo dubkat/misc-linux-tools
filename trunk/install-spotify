@@ -1,0 +1,457 @@
+#!/bin/bash
+#
+# Automate installation of Spotify on openSUSE 12.2
+#
+# Credits for original version go to arminw on spotify forums:
+#
+# http://community.spotify.com/t5/Desktop-Linux/Segfault-on-opensuse-12-2/m-p/161048/highlight/true#M1331
+
+SPOTIFY_BIN="/usr/bin/spotify"
+
+POOL_URL="http://repository.spotify.com/pool/non-free/s/spotify/"
+
+#RPM_TOPDIR="/usr/src/packages"
+RPM_TOPDIR="$HOME/rpmbuild"
+RPM_SOURCE_DIR="$RPM_TOPDIR/SOURCES"
+# We prefer to keep the amount of code running as root to an absolute
+# minimum, but spotify-installer.spec can't install to a user's home
+# directory, so the spec file goes in /usr/src/packages even though
+# the rest of the rpmbuild stuff lives in $HOME.
+RPM_SPEC_DIR="$RPM_TOPDIR/SPECS"
+
+# Name of file residing within official Spotify repository above
+RPM_NAME="spotify-client"
+VERSION="0.9.11.27"
+INTERNAL="g2b1a638.81-1"
+FV="${VERSION}.${INTERNAL}"
+
+SPEC_NAME="${RPM_NAME}-${VERSION}.spec"
+SPEC_FILE="${RPM_SPEC_DIR}/${SPEC_NAME}"
+BASENAME="${RPM_NAME}_${FV}"
+
+ISSUE_TRACKER_URL="https://github.com/aspiers/opensuse-spotify-installer/issues"
+
+main () {
+    parse_args "$@"
+
+    check_non_root
+
+    if [ -z "$uninstall" ]; then
+        if check_not_installed; then
+            safe_run mkdir -p "$RPM_TOPDIR"/{BUILD,BUILDROOT,SPECS,SOURCES,SRPMS,RPMS/{i586,x86_64}}
+            install_rpm_build
+            create_spec_file
+            echo
+            download_spotify_deb
+            echo
+            build_rpm
+            echo
+            install_rpm
+        fi
+        echo
+        maybe_install_libmp3lame0
+        echo
+        progress "Spotify can now be run via $SPOTIFY_BIN - happy listening!"
+    else
+        uninstall
+    fi
+}
+
+create_spec_file() {
+	if [ -f "$SPEC_FILE" ]; then
+		rm -f ${SPEC_FILE}
+	fi
+	cat <<SPECEOF > ${SPEC_FILE}
+#
+# spec file for package $RPM_NAME
+#
+# Copyright (c) 2014 Marguerite Su, Adam Spiers, Dan Reidy
+#
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An "Open Source License" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
+
+Name:           $RPM_NAME
+Version:        $VERSION
+Release:        1
+License:        Commercial
+Summary:        Desktop client for Spotify streaming music service
+Url:            http://www.spotify.com/download/previews/
+Group:          Productivity/Multimedia/Sound/Players
+%ifarch x86_64
+Source0: spotify-client_%{version}.${INTERNAL}_amd64.deb
+%else
+Source0: spotify-client_%{version}.${INTERNAL}_i386.deb
+%endif
+NoSource:       0
+%if 0%{?suse_version}
+Requires:       mozilla-nss
+Requires:       mozilla-nspr
+Requires:       libopenssl1_0_0
+Requires:       libpng12-0
+Recommends:     libmp3lame0
+%endif
+
+# not currently tested on Fedora or Mandriva, but leaving
+# these here in case anyone wants to step up and do it :)
+%if 0%{?fedora_version}
+Requires:       nss
+Requires:       nspr
+Requires:       openssl >= 1.0.0
+%endif
+%if 0%{?mandriva_version}
+Requires:       libnss3
+Requires:       libnspr4
+Requires:       libopenssl1.0.0
+Conflicts:      libopenssl0.9.8
+%endif
+
+BuildRoot:      %{_tmppath}/%{name}-%{version}-build
+
+%description
+Spotify is a "Freemium" proprietary, DRM-restricted digital music
+service that gives you access to millions of songs.
+
+It includes the following features:
+
+- Custom playlists
+- Last.fm integration
+- Customized radio dynamically generated to the user's tastes
+- Social media integration with Facebook and Twitter
+- 3rd-party applications integrated into the client
+
+%prep
+%setup -T -c %{name}-%{version}
+# unpack deb
+ar -x %{SOURCE0}
+# unpack data
+tar -xzf data.tar.gz
+# remove used files
+rm {control,data}.tar.gz debian-binary
+
+%define _use_internal_dependency_generator 0
+%define __find_requires %_builddir/%{name}-%{version}/find-requires.sh
+cat >%__find_requires <<'EOF'
+#!/bin/sh
+
+/usr/lib/rpm/find-requires | \
+    sed -e 's/lib\(nss3\|nssutil3\|smime3\|plc4\|nspr4\)\.so\.[01]d/lib\1.so/
+            /lib\(crypto\|ssl\)\.so/d'
+EOF
+chmod +x %__find_requires
+
+%build
+# no need to build
+
+%install
+mv opt %{buildroot}
+
+%define spotifydir /opt/spotify/spotify-client
+%define spotifylibdir %spotifydir/lib
+
+# Fix spotify.desktop file:
+# - trailing semi-colon is required for fields with multiple values
+#   http://standards.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html#basic-format
+
+desktop=%{buildroot}%{spotifydir}/spotify.desktop
+#sed -i $desktop -e 's/^\(MimeType=.*\);?$/\1;/i' -e 's/^Categories=/Categories=AudioVideo;Music;Player;Jukebox;/'
+
+# http://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file
+# http://en.opensuse.org/openSUSE:Packaging_desktop_menu_categories#Multimedia
+
+#%suse_update_desktop_file $desktop
+
+mkdir -p %{buildroot}%{_docdir}/%{name}
+mv usr/share/doc/spotify-client/* %{buildroot}%{_docdir}/%{name}/
+cat >%{buildroot}%{_docdir}/%{name}/README <<EOF
+This package was built by the openSUSE Spotify installer; see
+
+    https://github.com/aspiers/opensuse-spotify-installer
+
+for more information.
+EOF
+
+# fix libraries
+mkdir -p %{buildroot}%{spotifylibdir}
+ln -sf ../libcef.so %{buildroot}%{spotifylibdir}/libcef.so
+
+# install binary wrapper
+mkdir -p %{buildroot}%{_bindir}
+wrapper="%{buildroot}%{_bindir}/spotify"
+cat >"$wrapper" <<'EOF'
+#!/bin/sh
+
+if [ -n "$SPOTIFY_CLEAN_CACHE" ]; then
+    echo
+    echo -n "Cleaning spotify cache ... "
+    rm -rf ~/.cache/spotify
+    echo "done."
+fi
+
+cd %{spotifydir}
+LD_LIBRARY_PATH=%{spotifylibdir} ./spotify "$@"
+EOF
+
+chmod +x "$wrapper"
+
+# link dependencies
+mkdir -p %{buildroot}%{_libdir}
+ln -sf /%{_lib}/libcrypto.so.1.0.0 %{buildroot}%{spotifylibdir}/libcrypto.so.0.9.8
+ln -sf /%{_lib}/libssl.so.1.0.0 %{buildroot}%{spotifylibdir}/libssl.so.0.9.8
+libs=(
+    libnss3.so.1d \
+    libnssutil3.so.1d \
+    libsmime3.so.1d \
+    libplc4.so.0d \
+    libnspr4.so.0d
+)
+for lib in "${libs[@]}"; do
+    ln -sf %{_libdir}/${lib%.[01]d} %{buildroot}%{spotifylibdir}/$lib
+done
+
+# 0.8.8 has an errant RPATH which was accidentally left in
+# http://community.spotify.com/t5/Desktop-Linux/ANNOUNCE-Spotify-0-8-8-for-GNU-Linux/m-p/238118/highlight/true#M1867
+export NO_BRP_CHECK_RPATH=true
+
+%post
+/sbin/ldconfig
+
+cd %{spotifydir}
+./register.sh
+#%desktop_database_post
+#%icon_theme_cache_post
+
+%preun
+if [ "$1" = 0 ]; then
+    cd %{spotifydir}
+    ./unregister.sh
+fi
+
+%postun
+if [ "$1" = 0 ]; then
+    /sbin/ldconfig
+fi
+#%desktop_database_postun
+#%icon_theme_cache_postun
+
+%files
+%defattr(-,root,root)
+%spotifydir
+%doc %{_docdir}/%{name}
+%{_bindir}/spotify
+#%{_datadir}/applications/spotify.desktop
+
+%changelog
+* Sat Sep 07 2014 Dan Reidy <dubkat@gmail.com>
+- Make this a little more sane
+
+* Fri Mar 21 2014 Stefan Botter <obs@botter.cc>
+- fix version number
+
+* Thu Jul 18 2013 Stefan Botter <obs@botter.cc>
+- update to 0.9.1, fix PM-78
+
+* Sat Jan 05 2013 Adam Spiers <spotify-on-opensuse@adamspiers.org>
+- add README
+
+* Sat Jan 05 2013 Adam Spiers <spotify-on-opensuse@adamspiers.org>
+- update to 0.8.8 (moved to /opt)
+- rename to spotify-client for consistency with original Debian package
+- use provided register.sh and unregister.sh
+- remove need to conflict with libopenssl0_9_8
+- fix automatically generated dependencies
+- fix XDG categories
+- move dedicated library directory to /opt/spotify/spotify-client/lib
+- remove spotify-linux-512x512.png since redistribution probably
+  violates Spotify copyright
+- fix SPOTIFY_CLEAN_CACHE test
+- fix passing of multiple arguments to spotify binary
+
+* Mon Aug 20 2012 Marguerite Su <i@marguerite.su> - 0.8.4.103.g9cb117b.260
+- initial version with Spotify App support.
+- use libopenssl1_0_0 instead of libopenssl0_9_8 to fix a crash and other linkings ready.
+- use wrapper to clear cache manually
+
+
+
+SPECEOF
+
+}
+
+
+usage () {
+    # Call as: usage [EXITCODE] [USAGE MESSAGE]
+    exit_code=1
+    if [[ "$1" == [0-9] ]]; then
+        exit_code="$1"
+        shift
+    fi
+    if [ -n "$1" ]; then
+        echo "$*" >&2
+        echo
+    fi
+
+    me=`basename $0`
+
+    cat <<EOF >&2
+Usage: $me
+       $me -u | --uninstall
+EOF
+    exit "$exit_code"
+}
+
+parse_args () {
+    uninstall=
+
+    while [ $# != 0 ]; do
+        case "$1" in
+            -h|--help)
+                usage 0
+                ;;
+            -u|--uninstall)
+                uninstall=y
+                shift
+                ;;
+            -*)
+                usage "Unrecognised option: $1"
+                ;;
+            *)
+                break
+                ;;
+        esac
+    done
+
+    if [ $# -gt 1 ]; then
+        usage
+    fi
+
+    if [ -n "$1" ]; then
+        BASENAME=$1
+    fi
+}
+
+progress () { tput bold; tput setaf 2; echo     "$*"; tput sgr0; }
+warn     () { tput bold; tput setaf 3; echo >&2 "$*"; tput sgr0; }
+error    () { tput bold; tput setaf 1; echo >&2 "$*"; tput sgr0; }
+fatal    () { error "$@"; exit 1; }
+
+safe_run () {
+    if ! "$@"; then
+        fatal "$* failed! Aborting." >&2
+        exit 1
+    fi
+}
+
+check_non_root () {
+    if [ "$(id -u)" = "0" ]; then
+        fatal "\
+Please run this script non-root, it's a bit safer that way.
+It will use sudo for commands which need root.  Aborting."
+    fi
+}
+
+
+install_rpm_build () {
+    if rpm -q rpm-build >/dev/null; then
+        progress "rpm-build is already installed."
+    else
+        safe_run sudo zypper -n install -lny rpm-build
+    fi
+}
+
+install_libmp3lame0 () {
+    if safe_run zypper lr -d | grep -iq 'packman'; then
+        progress "Packman repository is already configured - good :)"
+    else
+        #safe_run sudo zypper ar -f http://packman.inode.at/suse/12.2/packman.repo
+        fatal "You need to add the Packman repos."
+	exit 1
+    fi
+
+    echo
+    safe_run sudo zypper -n --gpg-auto-import-keys in -l libmp3lame0
+    echo
+    progress "Installed libmp3lame0."
+}
+
+check_not_installed () {
+    if rpm -q "$RPM_NAME" >/dev/null; then
+        warn "$RPM_NAME is already installed!  If you want to re-install,please uninstall first via: $0 -u"
+        return 1
+    else
+        return 0
+    fi
+}
+
+download_spotify_deb () {
+    arch=$(arch)
+    if [ "$arch" == "x86_64" ]; then
+        deb=${BASENAME}_amd64.deb
+        rpmarch="x86_64"
+    elif [ "$arch" == "i686" ]; then
+        deb=${BASENAME}_i386.deb
+        rpmarch="i586"
+    else
+        fatal "Sorry, $arch architecture isn't supported.  If you think this is a mistake, please consider filing a bug at: $ISSUE_TRACKER_URL Aborting."
+    fi
+
+    RPM_DIR="$RPM_TOPDIR/RPMS/$rpmarch"
+
+    dest="$RPM_SOURCE_DIR/$deb"
+    if [ ! -e "$dest" ]; then
+        echo "Downloading Spotify .deb package ..."
+        safe_run wget -O "$dest" "$POOL_URL/$deb"
+        progress ".deb downloaded."
+    else
+        progress "Spotify .deb package already exists:"
+        echo
+        echo "  ${dest/$HOME/~}"
+        echo
+        echo "Skipping download."
+    fi
+}
+
+build_rpm () {
+    echo "About to build $RPM_NAME rpm; please be patient ..."
+    echo
+    sleep 3
+    safe_run rpmbuild -ba "$RPM_SPEC_DIR/${RPM_NAME}-${VERSION}.spec"
+
+    rpm="$RPM_DIR/${RPM_NAME}-${VERSION}.$rpmarch.rpm"
+
+    if ! [ -e "$rpm" ]; then
+        fatal "rpmbuild failed :-(  Please consider filing a bug at: $ISSUE_TRACKER_URL"
+    fi
+
+    echo
+    progress "rpm successfully built!"
+}
+
+install_rpm () {
+    echo "Installing Spotify from the rpm we just built ..."
+    safe_run sudo zypper -n in "$rpm"
+
+    if ! rpm -q "$RPM_NAME" >/dev/null; then
+        error "Failed to install $rpm :-("
+        error "Please consider filing a bug at:
+
+    $ISSUE_TRACKER_URL"
+    fi
+}
+
+uninstall () {
+    if rpm -q "$RPM_NAME" >/dev/null; then
+        echo "Removing $RPM_NAME rpm ..."
+        safe_run sudo rpm -ev "$RPM_NAME"
+        progress "De-installation done!"
+    else
+        warn "$RPM_NAME was not installed; nothing to uninstall."
+    fi
+}
+
+main "$@"
