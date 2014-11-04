@@ -20,11 +20,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #    $Id$
-#    $UUID$
+#
 #####
 
 #end of opts
-nvidia_fetcher_version="0.2"
+nvidia_fetcher_version="0.3"
 
 about="
 
@@ -51,6 +51,9 @@ nv_install=0
 nv_no_multilib=0
 nv_show_about=0
 nv_show_help=0
+nv_clobber=0
+nv_script=""
+nv_script_upgrade=0
 
 nv_kernel="`uname -s`"
 nv_arch="`uname -i`"
@@ -82,13 +85,21 @@ function nv_printhelp ()
 	echo "$0	-d: check and download the latest version available only"
 	echo "$0	-i: install (implies -c and -d)"
 	echo "$0	-m: on 64bit machines, fetch the no-multilib version."
+	echo "$0	-l: clobber any existing driver file (a backup will be created)."
 	echo "$0	-v <DRIVER VERSION>: download specific driver version."
+	echo "$0    -U: upgrade this script automatically, and with impunity."
 	echo "$0	-h: print this help."
 	echo
 	echo "The simplest way to run this script is to issue the following command:"
 	echo "$0 -i"
 	echo
 }
+
+# gentoo prints such pretty notices, but we may not be on a gentoo system.
+# lets do our best to mimic it.
+function iprint () { echo -e "${co_green}*${co_null} $*"; }
+function wprint () { echo -e "${co_yellow}*${co_null} $*"; }
+function eprint () { echo -e "${co_red}*${co_null} $*" >&2; }
 
 # ripped from Gentoo's functions.sh
 # Copyright (c) 2007-2009 Roy Marples <roy@marples.name>
@@ -110,7 +121,7 @@ function yesno ()
     case "$value" in
         [Yy][Ee][Ss]|[Tt][Rr][Uu][Ee]|[Oo][Nn]|1) return 0;;
         [Nn][Oo]|[Ff][Aa][Ll][Ss][Ee]|[Oo][Ff][Ff]|0) return 1;;
-        *) echo "\$$1 is not set properly"; return 1;;
+        *) wprint "\$$1 is not set properly"; return 1;;
     esac
 }
 
@@ -128,7 +139,7 @@ function nv_fetch ()
 	dest="$2"
 	if [ ! -z $dest ]; 
 	then
-		curl --silent --continue $src > $dest
+		curl --silent --continue - $src > $dest
 		return $?
 	else
 		curl --silent $src
@@ -140,9 +151,7 @@ function nv_fetch ()
 
 function nv_getLatestVerNo ()
 {
-	debug "fetching info from:  $nv_site/latest.txt"
 	nv_version_latest="$(nv_fetch $nv_site/latest.txt | awk '{ print $1 }')"
-	debug "Latest version from nvidia: $nv_version_latest"
 }
 
 function nv_checkPossibleVersion ()
@@ -160,38 +169,44 @@ function nv_establishSrcDir ()
 	
 	if [ ! -d $nv_srcdir ];
 	then
-		echo "Nvidia Source Directory doesn't exist, creating it: ${nv_srcdir}" >&2
-		mkdir -p ${nv_srcdir} || echo "Failed to create directory." && exit 1;
+		wprint "Nvidia Source Directory doesn't exist, creating it: ${nv_srcdir}"
+		mkdir -p ${nv_srcdir} && eprint "Failed to create directory." && exit 1;
 	fi
 }
 
-while getopts "acdihmuv:" options; do
+while getopts "acdilhmuUVv:" options; do
 	case $options in
 		a)
-			nv_show_about=1
+			nv_show_about=1;
 			break;
     		;;
     	c)
-    		nv_check_latest_only=1
+    		nv_check_latest_only=1;
     		break;
     		;;
     	d)
-    		nv_fetch_only=1
+    		nv_fetch_only=1;
     		;;
     	i)
-    		nv_install=1
+    		nv_install=1;
     		;;
     	h)
-    		nv_show_help=1
+    		nv_show_help=1;
+    		;;
+    	l)
+    		nv_clobber=1;
     		;;
     	m)
     		nv_no_multilib=1;
     		;;
     	v)
-    		nv_fetch_specific_version="$OPTARG"
+    		nv_fetch_specific_version="$OPTARG";
     		;;
-    	u)
-    		nv_script_debug=1
+    	U)
+    		nv_script_upgrade=1
+    		;;
+    	V)
+    		nv_version_only=1;
     		;;
     	\?)
     		nv_printhelp
@@ -201,12 +216,39 @@ while getopts "acdihmuv:" options; do
 done
 
 
-echo -e "${co_green}nVidia${co_null} ${co_white}Fetcher for $nv_kernel ($nv_arch) $nvidia_fetcher_version by Dan Reidy <dubkat@gmail.com>${co_null}"
+if [ $nv_version_only -eq 1 ]; then
+	echo -n $nv_fetcher_version;
+	exit 0;
+fi
+
+iprint "${co_green}nVidia${co_null} ${co_white}Fetcher for $nv_kernel ($nv_arch) $nvidia_fetcher_version by Dan Reidy <dubkat@gmail.com>${co_null}"
+iprint "$Id$"
 
 if [ $# -eq 0 ]; then
 	nv_printhelp
 	exit 127;
 fi
+
+
+nv_script="$(readlink -f $0)"
+if [ $nv_script_upgrade -eq 1 ]; then
+	iprint "AutoUpgrade in progress..."
+	cp "$nv_script" "/tmp/nvidia-fetcher-${nv_fetcher_version}.sh"
+	iprint "Downloading from googlecode.com"
+	nv_fetch http://misc-linux-tools.googlecode.com/svn/trunk/nvidia-fetcher/nvidia-fetcher.sh /tmp/nvidia-fetcher-current.sh
+	current=$(bash /tmp/nvidia-fetcher-current.sh -V);
+	#if [ $current > $nvidia_fetcher_version ]; then
+		iprint "Upgrading from $nv_fetcher_version to $current"
+	#elif [ $current == $nvidia_fetcher_version ]; then
+		#	iprint "Upgrading to same version (possibly new revisions)"
+	#fi
+	mv /tmp/nvidia-fetcher-current.sh $nv_script && eprint "Failed to move /tmp/nvidia-fetcher-current.sh to $nv_script" && exit 1;
+	iprint "Copy Complete. Rexecuting."
+	exec $nv_script -a
+fi
+	
+	
+
 
 # get the latest version, it's used thoughout the script.
 nv_getLatestVerNo;
@@ -214,10 +256,10 @@ nv_getLatestVerNo;
 
 if [ $nv_check_latest_only -eq 1 ];
 then
-	echo
-	echo -e "The latest version for ${nv_kernel}/${nv_arch} is: ${co_white}$nv_version_latest ${co_null}"
-	echo -e "To install this, issue ${co_white}$0 -i${co_null}"
-	echo
+	iprint
+	iprint "The latest version for ${nv_kernel}/${nv_arch} is: ${co_white}$nv_version_latest ${co_null}"
+	iprint "To install this, issue the command: ${co_white}$nv_script -i${co_null}"
+	iprint
 	exit 0;
 fi
 
@@ -231,9 +273,9 @@ if [ $nv_fetch_only -eq 1 ] || [ $nv_install -eq 1 ]; then
 		nv_version="$nv_version_latest"
 	else
 		nv_version="$nv_fetch_specific_version"
-		echo
-		echo "You requested to fetch version: $nv_version"
-		echo -n "Latest version is: $nv_version_latest, do you wish to continue? [yes/NO]: "
+		iprint
+		iprint "You requested to fetch version: $nv_version"
+		iprint -n "Latest version is: $nv_version_latest, do you wish to continue? [yes/NO]: "
 		resp=""
 		while IFS= read -r -s -n1 cont; do
 			if [[ -z $cont ]]; then
@@ -249,6 +291,7 @@ if [ $nv_fetch_only -eq 1 ] || [ $nv_install -eq 1 ]; then
 		
 		if [ $? -ne 0 ]; then
 			debug "Response was no, exiting."
+			iprint "Our job is done."
 			exit 0;
 		fi
 	fi
@@ -260,55 +303,63 @@ if [ $nv_fetch_only -eq 1 ] || [ $nv_install -eq 1 ]; then
 	fi
 	nv_driver_name="${nv_driver_name}.run"
 	
-	debug
-	debug "wanted version: $nv_version"
-	debug "driver: $nv_driver_name"
-	debug
-	
-	# FIXME
-	#if [ "$(nv_checkPossibleVersion)" == "0" ]; then
-		#	echo "YES"
-	#else
-		#	echo "No"
-	#fi
+	wprint "wanted version: $nv_version"
+	wprint "driver:         $nv_driver_name"
 	
 	nv_site="${nv_site}/${nv_version}"
 	
-	echo -e "${co_white}Fetching: 	 ${co_blue}${nv_driver_name}.sha256${co_null}"
+	iprint "Fetching: 	    ${co_cyan}${nv_driver_name}.sha256${co_null}"
 	nv_fetch ${nv_site}/${nv_driver_name}.sha256 ${nv_srcdir}/${nv_driver_name}.sha256
 	
 	if [ ! -s ${nv_srcdir}/${nv_driver_name}.sha256 ]; then
-		echo -e "${co_red}ERROR: 		${co_null} Unable to install $nv_driver_name. Likely invalid version." >&2
+		eprint "ERROR: Unable to install $nv_driver_name. Likely invalid version."
 		rm -f ${nv_srcdir}/${nv_driver_name}.sha256
 		exit 127;
 	fi
 	
 	if [ -f "${nv_srcdir}/${nv_driver_name}" ]; then
-		echo -e "${co_yellow}WARNING:${co_null} ${nv_srcdir}/${nv_driver_name} exists, backing up."
-		
-		mv "${nv_srcdir}/${nv_driver_name}" "${nv_srcdir}/${nv_driver_name}~"
+		if [ $nv_clobber -eq 1 ]; then
+			iprint "${nv_srcdir}/${nv_driver_name} exists, backing up."
+			mv "${nv_srcdir}/${nv_driver_name}" "${nv_srcdir}/${nv_driver_name}~"
+		fi
 	fi
 	
-	echo -e "${co_white}Fetching: 	 ${co_blue}${nv_driver_name}${co_null}"
+	iprint "Fetching: 	 ${co_cyan}${nv_driver_name}${co_null}"
 	nv_fetch ${nv_site}/${nv_driver_name} ${nv_srcdir}/${nv_driver_name}
 	
 	if [ ! -s ${nv_srcdir}/${nv_driver_name} ]; then
-		echo -e "${co_red}ERROR:	${co_null} ${nv_driver_name} has a zero filesize." >&2
+		eprint "ERROR:	${nv_driver_name} has a zero filesize."
 		exit 127;
 	fi
-	debug "running sed on on sha256 file to use full pathname"
+
 	sed -i ${nv_srcdir}/${nv_driver_name}.sha256 -e "s#NVIDIA-#${nv_srcdir}/NVIDIA-#"
-	debug "checking sha256sum of ${nv_srcdir}/${nv_drivername}"
-	sha256sum -c ${nv_srcdir}/${nv_driver_name}.sha256
+
+	sha256sum -c ${nv_srcdir}/${nv_driver_name}.sha256 >/dev/null 2>&1
+	
 	if [ "$?" != "0" ]; then
-		echo -e "${co_red}Failure!${co_white} Checksum does not match."
+		eprint "Checksum Failure!"
 		exit 1;
 	fi
+	
 	if [ "$nv_install" ]; then
+		
+		if [ "$UID" != "0" ]; then
+			wprint "Cannot install without being root."
+			exit 1;
+		fi
+		
+		if [ -f "/tmp/.X0-lock" ]; then
+			pid=$(cat /tmp/.X0-lock | awk '{ print $1 }');
+			wprint "You appear to be running an X server with pid $pid."
+			wprint "Installation will most certainly fail."
+		fi
+		
 		/bin/bash ${nv_srcdir}/${nv_driver_name} --silent >/dev/null 2>&1
+		
 		if [ "$?" != "0" ]; then
-			echo -e "${co_green}Nvidia${co_null} Installer finished with errors."
-			echo -e "Please see ${co_white}/var/log/nvidia-installer.log${co_null} for more info."
+			eprint "${co_green}nVidia${co_null} Installer finished with errors."
+			eprint "Please see ${co_white}/var/log/nvidia-installer.log${co_null} for more info."
+			grep --color=force "ERROR:" /var/log/nvidia-installer.log >&2
 			exit 1;
 		fi
 	fi
