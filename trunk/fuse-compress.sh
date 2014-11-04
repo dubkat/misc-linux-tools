@@ -1,4 +1,10 @@
 #!/bin/bash
+# Create an accesable compressed filesystem using FUSE.
+# Copyleft (C) 2014 Dan Reidy <dubkat@gmail.com>
+# $Id$
+#
+# Note: Intended for /home use, but can be easily adapted for system use at your own risk.
+#
 
 COMPRESS_STORAGE=".fuse-compressed"
 COMPRESS_METHOD="lzma"
