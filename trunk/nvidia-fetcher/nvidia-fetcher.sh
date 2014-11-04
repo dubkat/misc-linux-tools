@@ -20,10 +20,11 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #    $Id$
+#    $UUID$
 #####
 
 #end of opts
-nvidia_fetcher_version="0.1"
+nvidia_fetcher_version="0.2"
 
 about="
 
@@ -127,7 +128,7 @@ function nv_fetch ()
 	dest="$2"
 	if [ ! -z $dest ]; 
 	then
-		curl --silent $src > $dest
+		curl --silent --continue $src > $dest
 		return $?
 	else
 		curl --silent $src
@@ -150,7 +151,19 @@ function nv_checkPossibleVersion ()
 	return $?
 }
 
-
+function nv_establishSrcDir ()
+{
+	nv_srcdir="/usr/src/NVIDIA"
+	if [ $UID -ne 0 ]; then
+		nv_srcdir="${HOME}/NVIDIA"
+	fi
+	
+	if [ ! -d $nv_srcdir ];
+	then
+		echo "Nvidia Source Directory doesn't exist, creating it: ${nv_srcdir}" >&2
+		mkdir -p ${nv_srcdir} || echo "Failed to create directory." && exit 1;
+	fi
+}
 
 while getopts "acdihmuv:" options; do
 	case $options in
@@ -187,10 +200,6 @@ while getopts "acdihmuv:" options; do
 	esac
 done
 
-nv_srcdir="/usr/src/NVIDIA"
-if [ $UID -ne 0 ]; then
-	nv_srcdir="${HOME}/NVIDIA"
-fi
 
 echo -e "${co_green}nVidia${co_null} ${co_white}Fetcher for $nv_kernel ($nv_arch) $nvidia_fetcher_version by Dan Reidy <dubkat@gmail.com>${co_null}"
 
@@ -212,13 +221,9 @@ then
 	exit 0;
 fi
 
-if [ $nv_fetch_only -eq 1 ] || [ $nv_install -eq 1 ];
-then
-	if [ ! -d $nv_srcdir ];
-	then
-		echo "Nvidia Source Directory doesn't exist, creating it: ${nv_srcdir}" >&2
-		mkdir -p ${nv_srcdir};
-	fi
+if [ $nv_fetch_only -eq 1 ] || [ $nv_install -eq 1 ]; then
+	nv_establishSrcDir;
+	
 	
 	# if no specified version, we want the latest
 	if [ "$nv_fetch_specific_version" == "0" ];
@@ -293,10 +298,23 @@ then
 	fi
 	debug "running sed on on sha256 file to use full pathname"
 	sed -i ${nv_srcdir}/${nv_driver_name}.sha256 -e "s#NVIDIA-#${nv_srcdir}/NVIDIA-#"
+	debug "checking sha256sum of ${nv_srcdir}/${nv_drivername}"
 	sha256sum -c ${nv_srcdir}/${nv_driver_name}.sha256
-	
+	if [ "$?" != "0" ]; then
+		echo -e "${co_red}Failure!${co_white} Checksum does not match."
+		exit 1;
+	fi
+	if [ "$nv_install" ]; then
+		/bin/bash ${nv_srcdir}/${nv_driver_name} --silent >/dev/null 2>&1
+		if [ "$?" != "0" ]; then
+			echo -e "${co_green}Nvidia${co_null} Installer finished with errors."
+			echo -e "Please see ${co_white}/var/log/nvidia-installer.log${co_null} for more info."
+			exit 1;
+		fi
+	fi
 fi
 
+exit 0;
 
 
 
