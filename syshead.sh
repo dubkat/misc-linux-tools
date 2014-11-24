@@ -44,7 +44,7 @@ big_font="shadow"
 case "${TERM}" in
     urxvt|rxvt-unicode* ) ;;
     screen ) ;;
-    xterm ) ;;
+    xterm* ) ;;
 
     linux )
         echo "Running from a console, how quaint."
