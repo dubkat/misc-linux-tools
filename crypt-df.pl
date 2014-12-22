@@ -52,18 +52,12 @@ my $use_sudo = 0;
 # Stop Editing
 #########################################################################################################
 
-BEGIN {
-	my $e=0;
-
-	# prefer common sense over strict and warnings
-	eval "common::sense;";
-	$e=1 if ($@);
-
-	use if $e, strict;
-	use if $e, warnings;
-	require utf8;
-}
-
+# do we have any common sense?
+use if eval { require common::sense } == 1, "common::sense";
+use if eval { require common::sense } == 0, "strict";
+use if eval { require common::sense } == 0, "warnings";
+use if eval { require common::sense } == 0, "utf8";
+# see how much better having common::sense is?
 
 
 my $df="/bin/df";
@@ -104,8 +98,6 @@ sub cryptinfo {
 
 		return;
 	}
-	#$data{$id}->{'cr_type'} = 'null';
-	#$data{$id}->{'cr_cipher'} = 'null';
 	
 	
 	
@@ -119,14 +111,14 @@ $count = @data;
 for (my $i=0; $i < $count; $i++) {
 	my $line = shift @data;
 	if ( $i == 0 ) {
-		foreach (split # +#,$line) {
+		foreach (split m! +!,$line) {
 			next if $_ =~ /^on$/;
 			push @header, $_;
 		}
 		next;
 	}
 	
-	my @new = split # +#, $line;
+	my @new = split m! +!, $line;
 	$data{$i} = {
 		'dev' => $new[0],
 		'typ' => $new[1],
