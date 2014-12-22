@@ -200,6 +200,7 @@ LICENSE
 sub curl_publicip {
     my $publicIp = qx[ curl --connect-timeout 1 -fs ip.appspot.com ];
     $publicIp ||= "<unknown>";
+    chomp $publicIp;
     return $publicIp;
 }
 
