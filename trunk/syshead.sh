@@ -72,6 +72,11 @@ if [ ! -x /usr/bin/whois ]; then
     fatal=$[fatal +1]
 fi
 
+if [ ! -x /usr/bin/finger ]; then
+    message="Finger is not installed.:${message}"
+    fatal=$[fatal +1]
+fi
+
 if [ $fatal -gt 0 ]; then
     echo "There are $fatal fatal errors."
     echo
@@ -171,7 +176,7 @@ figlet ${fig_default_opts} $center -f $sm_font `groups`
 myfile=$(mktemp /dev/shm/syshead-${USER}-XXXX);
 debug "* creating temporary file: $myfile."
 # /usr/bin/df -hTP | grep ^dubkat | ccze
-mcount="`/usr/bin/df -a | grep ^$USER | wc -l`"
+mcount="`df -a | grep ^$USER | wc -l`"
 debug "* user $USER has $mcount personal mounts"
 
 realname="`finger $USER | grep Name | awk -F'Name: ' '{ print $2 }'`"
