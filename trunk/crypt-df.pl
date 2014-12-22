@@ -119,14 +119,14 @@ $count = @data;
 for (my $i=0; $i < $count; $i++) {
 	my $line = shift @data;
 	if ( $i == 0 ) {
-		foreach (split / +/,$line) {
+		foreach (split # +#,$line) {
 			next if $_ =~ /^on$/;
 			push @header, $_;
 		}
 		next;
 	}
 	
-	my @new = split / +/, $line;
+	my @new = split # +#, $line;
 	$data{$i} = {
 		'dev' => $new[0],
 		'typ' => $new[1],
