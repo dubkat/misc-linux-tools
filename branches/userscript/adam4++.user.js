@@ -8,6 +8,7 @@
 // @match        http://www.adam4adam.com/*
 // @grant        none
 // @require      http://code.jquery.com/jquery-latest.js
+// $Id$
 // ==/UserScript==
 
 
