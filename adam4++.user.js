@@ -5,6 +5,7 @@
 // @description  adam4adam.com page cleanup and ad remover for Chromium, Opera, Silk, and Google Chrome.
 // @author       Dan Reidy <dubkat@gmail.com>
 // @copyright    Copyright (C) 2015 Dan Reidy
+// @license      GPLv3
 // @match        http://www.adam4adam.com/*
 // @grant        none
 // @require      http://code.jquery.com/jquery-latest.js
