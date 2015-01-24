@@ -127,10 +127,10 @@ if [ $havenet ]; then
     IPv4="$(curl --connect-timeout 5 -s -4 ip.appspot.com)"
     IPv6="$(curl --connect-timeout 5 -s -6 ip.appspot.com)"
     if [ ! -z $IPv4 ]; then
-        net4name="`whois $IPv4 | grep NetName | awk '{ print $2 }'`"
+        net4name="`whois $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
     fi
     if [ ! -z $IPv6 ]; then
-        net6name="`whois $IPv6 | grep NetName | awk '{ print $2 }'`"
+        net6name="`whois $IPv6 | grep OrgName | awk -F": +" '{ print $2 }'`"
     fi
 fi
 
