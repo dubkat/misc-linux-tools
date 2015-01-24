@@ -1,4 +1,7 @@
 #!/bin/bash
+# Copyright (C) 2014-2015 Dan Reidy <dubkat@gmail.com>
+# License: GPLv3+
+
 
 # no settings, just run it.
 
