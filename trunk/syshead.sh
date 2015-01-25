@@ -206,7 +206,7 @@ realname="`finger $USER | grep Name | awk -F'Name: ' '{ print $2 }'`"
 unlink $myfile
 echo
 echo "Welcome ${realname}."
-echo "`date`"
+#echo "`date`"
 #echo "%RED%Welcome %BOLD%%WHITE%${realname}%NORM%" #| sed  \
 #    -e 's/%RED%/\x1b[\[0;34m;/'  \
 #    -e 's/%BOLD%/\x1b[\[1;00m;/'  \
