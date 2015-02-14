@@ -417,11 +417,12 @@ sub mydistro {
     my $distro  = undef;
     my @release;
     if ( -x "/usr/bin/lsb_release" ) {
-	my $i = qx[/usr/bin/lsb_release -si];
-	my $r = qx[/usr/bin/lsb_release -sr];
+	my $i = qx[/usr/bin/lsb_release -sd];
+	#my $r = qx[/usr/bin/lsb_release -sr];
 	chomp $i;
-	chomp $r;
-	$distro = sprintf("%s %s", $i, $r);
+	$i =~ s/"//g;
+	#chomp $r;
+	$distro = sprintf("%s", $i);
     }
     else {
     	@release = glob('/etc/*-release');
