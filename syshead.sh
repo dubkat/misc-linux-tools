@@ -96,7 +96,7 @@ right=" -r "
 if [ -e "/etc/os-release" ]; then
     . /etc/os-release 2>&1 >/dev/null
     if [ ! -z $ANSI_COLOR ]; then
-        co_default="\e[\e${ANSI_COLOR}m"
+        co_default="\e[${ANSI_COLOR}m"
     fi
 else
     PRETTY_NAME="`uname -o` `uname -r` (`uname -v`)"
@@ -196,11 +196,11 @@ realname="`finger $USER | grep Name | awk -F'Name: ' '{ print $2 }'`"
 #    echo; echo;
 #
 #else
-    if [ $EUID -eq 0 ]; then
+   # if [ $EUID -eq 0 ]; then
     #    echo "Mount:Size:Used:Avail:Percent Used" > $myfile
-        /usr/bin/df -hTP -x tmpfs | awk '{ printf "%s:%s:%s:%s:%s\n", $7, $3, $4, $5, $6 }' >> $myfile
-        cat $myfile | column -s: -t
-    fi
+        #/usr/bin/df -hTP -x tmpfs | awk '{ printf "%s:%s:%s:%s:%s\n", $7, $3, $4, $5, $6 }' >> $myfile
+        #cat $myfile | column -s: -t
+   # fi
 #fi
 
 unlink $myfile
