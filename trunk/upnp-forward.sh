@@ -16,15 +16,15 @@
 #
 # $Id$
 
-
-PORTS_TCP="16881"
+INTERFACE="wlo1"
+PORTS_TCP="22 16881"
 PORTS_UDP="16881 17881 18881"
 
 
 ### End of settings ###
 
 
-lanip="`ip addr show | grep -vE '127.0|::1' | grep 'inet ' | awk '{ print $2 }' | cut -d/ -f1`"
+lanip="`ip addr show ${INTERFACE} | grep -vE '127.0|::1' | grep 'inet ' | awk '{ print $2 }' | cut -d/ -f1`"
 
 function upnp_start()
 {
@@ -50,6 +50,12 @@ function upnp_stop()
 
 }
 
+function upnp_status()
+{
+
+	upnpc -m $lanip -l | egrep '^\s[i0-9]' | column -t
+}
+
 case $1 in
 
 	start )
@@ -62,6 +68,10 @@ case $1 in
 	reset|restart )
 		upnp_stop;
 		upnp_start;
+		;;
+
+	status )
+		upnp_status;
 		;;
 
 	* )
