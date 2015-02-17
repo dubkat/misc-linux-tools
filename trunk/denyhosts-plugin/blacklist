@@ -1,0 +1,23 @@
+#!/bin/bash
+# denyhosts-plugin: blacklist
+# Add blocked IP to iptables and log it's ip, host, and country of origin.
+#
+# Copyright (C) 2015 Dan Reidy <dubkat@gmail.com>
+# License: Public Domain
+# $Id$
+
+ip=$1
+date=$(date +'%F %H:%I:%S')
+country=$(geoiplookup $ip | grep Country)
+
+if echo $country | grep -qi 'not found'; then
+	country=''
+else
+	country=$(echo $country | cut --complement -b-27);
+fi
+
+
+hostname=$(dig +short -x $ip)
+
+logger -p auth.notice -t blacklist "$date $ip $hostname $country"
+iptables -A blacklist -s $ip -j DROP

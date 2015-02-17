@@ -1,0 +1,10 @@
+#!/bin/bash
+# denyhosts-plugin: purgelist
+# Remove an IP from iptables per denyhost settings
+#
+# Copyright (C) 2015 Dan Reidy <dubkat@gmail.com>
+# License: Public Domain
+# $Id$
+
+logger -p auth.notice -t blacklist "Removing $1 from sshd blacklist iptables rules."
+iptables -D blacklist -s $1 -j DROP
