@@ -1,0 +1,12 @@
+#!/bin/bash
+# denyhosts-plugin: import /etc/hosts.deny to your iptables blacklist table
+# Add blocked IP to iptables and log it's ip, host, and country of origin.
+#
+# Copyright (C) 2015 Dan Reidy <dubkat@gmail.com>
+# License: Public Domain
+# $Id$
+
+for ip in $(grep '^[SSH|ALL]' /etc/hosts.deny | cut -d" " -f2 | sort -n); do
+	iptables -A blacklist -s $ip -j DROP
+done
+
