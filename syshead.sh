@@ -1,21 +1,31 @@
-#!/bin/bash
-# Copyright (C) 2014-2015 Dan Reidy <dubkat@gmail.com>
-# License: GPLv3+
-
-
-# no settings, just run it.
-
-function debug
-{
-    if [ ! -z $syshead_debug ]; then
-        echo "$*"
-    fi
-}
+#!/usr/bin/env bash
+#
+# syshead.sh - Print a useful, dynamic MOTD on user login.
+# Copyright (C) 2014-2015 Dan Reidy <dubkat@gmail.com>, http://plus.google.com/+DanReidy
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+#
+#################################################################################
+#
+# Version: 2015061900
 
 # variables used in script, not settngs.
 fatal=0;
+is_mac=0;
 message="";
-fig_default_opts="-t -k"
+fig_default_opts=" -k"
 IPv4=""
 IPv6=""
 net4name="Unknown."
@@ -25,14 +35,50 @@ center=" -c "
 left=" -l "
 right=" -r "
 
-co_blue="\e[1;34m"
-co_green="\e[1;32m"
-co_grey="\e[1;30m"
-co_red="\e[1;31m"
-co_yellow="\e[1;33m"
-co_magenta="\e[1;35m"
-co_cyan="\e[1;36m"
-co_white="\e[1;37m"
+
+function debug
+{
+    if [ ! -z $syshead_debug ]; then
+        echo "$*"
+    fi
+}
+
+function _mac_detect
+{
+	if [ -e "/usr/bin/sw_vers" ]; then
+		is_mac=1;
+		return
+	fi
+	fig_default_opts="${fig_default_opts} -t"
+}
+
+function _is_admin
+{
+    return `groups | grep -cE '\bstaff\b|\bwheel\b|\badmin\b'`
+}
+
+
+
+# MACHINE-INFO
+PRETTY_HOSTNAME=
+LOCATION="<unknown>"
+DEPLOYMENT="standard"
+
+hide_v4_if_nat=0
+
+# text format && color
+#ORN=$(tput setaf 3); RED=$(tput setaf 1); BLU=$(tput setaf 4)
+#GRN=$(tput setaf 40); MGN=$(tput setaf 5); CLR=$(tput sgr0)
+
+
+co_blue="\e[0;34m"
+co_green="\e[0;32m"
+co_grey="\e[0;30m"
+co_red="\e[0;31m"
+co_yellow="\e[0;33m"
+co_magenta="\e[0;35m"
+co_cyan="\e[0;36m"
+co_white="\e[0;37m"
 co_null="\e[0m"
 co_default=""
 
@@ -45,12 +91,13 @@ big_font="shadow"
 
 # message too long fix
 case "${TERM}" in
-    urxvt|rxvt-unicode* ) ;;
+    *rxvt* ) ;;
     screen ) ;;
     xterm* ) ;;
+    *color* ) ;;
 
     linux )
-        echo "Running from a console, how quaint."
+        ##echo "Running from a console, how quaint."
     ;;
 
     * )
@@ -65,17 +112,19 @@ if [ "${TERM}" = "dumb" ]; then
     fatal=$[fatal +1]
 fi
 
-if [ ! -x /usr/bin/figlet ]; then
+
+if [ ! -x `which figlet` ]; then
     message="Figlet is not installed.:${message}"
     fatal=$[fatal +1]
 fi
 
-if [ ! -x /usr/bin/whois ]; then
+
+if [ ! -x `which whois` ]; then
     message="Whois is not installed.:${message}"
     fatal=$[fatal +1]
 fi
 
-if [ ! -x /usr/bin/finger ]; then
+if [ ! -x `which finger` ]; then
     message="Finger is not installed.:${message}"
     fatal=$[fatal +1]
 fi
@@ -93,14 +142,36 @@ center=" -c "
 left=" -l "
 right=" -r "
 
+# the following file is on systemd powered systems
+if [ -e "/etc/machine-info" ]; then
+    . /etc/machine-info 2>/dev/null
+fi
+
 if [ -e "/etc/os-release" ]; then
     . /etc/os-release 2>&1 >/dev/null
     if [ ! -z $ANSI_COLOR ]; then
         co_default="\e[${ANSI_COLOR}m"
     fi
 else
-    PRETTY_NAME="`uname -o` `uname -r` (`uname -v`)"
-    co_default="${co_cyan}"
+    _mac_detect
+    if [ $is_mac ]; then
+	PRETTY_NAME="`sw_vers -productName` `sw_vers -productVersion`"
+	co_default="${co_blue}"
+    else
+	PRETTY_NAME="`uname -s` `uname -r` (`uname -m`)"
+	co_default="\e[${co_cyan}"
+    fi
+fi
+
+hostname_short="<unknown>"
+hostname_fqdn="unknown.example.org"
+
+if [ ! -x `which hostnamectl >/dev/null 2>&1` ]; then
+    hostname_short="`hostnamectl --short`"
+    hostname_fqdn="`hostnamectl --long`"
+else
+    hostname_short="`hostname -s`"
+    hostname_fqdn="`hostname -f`"
 fi
 
 debug "checking if i want full output, or short..."
@@ -109,7 +180,7 @@ if [ ! -z $syshead_full ] && [ "x${syshead_full}" != "xyes" ]; then
     netstatus=`nm-online -q`
 
     if [ "$netstatus" == "0" ]; then
-        if [ $(ping -c1 8.8.8.8 &>/dev/null ) ]; then 
+        if [ $(ping -c1 8.8.8.8 &>/dev/null ) ]; then
             havenet=1
         else
             havenet=0
@@ -127,8 +198,8 @@ fi
 
 if [ $havenet ]; then
     debug "have a network, testing..."
-    IPv4="$(curl --connect-timeout 5 -s -4 ip.appspot.com)"
-    IPv6="$(curl --connect-timeout 5 -s -6 ip.appspot.com)"
+    IPv4="$(curl --connect-timeout 10 -f -s -4 http://ip.appspot.com)"
+    IPv6="$(curl --connect-timeout 10 -f -s -6 http://ip.appspot.com)"
     if [ ! -z $IPv4 ]; then
         net4name="`whois $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
     fi
@@ -139,78 +210,78 @@ fi
 
 debug "* checking uptime."
 LOAD="`uptime | awk -F": " '{ print $2 }'`"
+UPTIME="`uptime | cut -d, -f1 | sed 's/.*up *//'`"
 
 debug "* checking usercount"
-USERCOUNT="`who | awk '{ print $1 }' | sort -h | wc -l`"
+USERCOUNT="`who | awk '{ print $1 }' | sort | uniq | wc -l | xargs`"
 
 debug "begin output.."
 echo -e ${co_default}
-figlet ${fig_default_opts} $center -f $big_font $(hostname)
-figlet ${fig_default_opts} $center -f $sm_font $(hostname).$(domainname)
+figlet ${fig_default_opts} $center -f $big_font $hostname_short
+figlet ${fig_default_opts} $center -f $sm_font $hostname_fqdn
 figlet ${fig_default_opts} $center -f $sm_font $PRETTY_NAME
-figlet ${fig_default_opts} $center -f $sm_font `uname -s` `uname -r`
-figlet ${fig_default_opts} $center -f $sm_font Entropy $(</proc/sys/kernel/random/entropy_avail) / $(</proc/sys/kernel/random/poolsize)
+figlet ${fig_default_opts} $center -f $sm_font "`uname -s` `uname -r` (`uname -m`)"
+
+
+if [ $is_mac -eq 0 ]; then
+    figlet ${fig_default_opts} $center -f $sm_font Entropy $(</proc/sys/kernel/random/entropy_avail) / $(</proc/sys/kernel/random/poolsize)
+fi
+
 figlet ${fig_default_opts} $center -f $sm_font $USERCOUNT users online. \($LOAD\)
+figlet ${fig_default_opts} $center -f $sm_font System Online: $UPTIME
+if [ ! -z "$LOCATION" ]; then
+    figlet ${fig_default_opts} $center -f $sm_font Location: $LOCATION
+fi
+
 echo -e ${co_null}
 echo
 
 if [ $havenet ]; then
+    have_ip="`/sbin/ifconfig | grep '$IPv4' | wc -l | xargs`"
+
     debug "* have a network, so printing IP addresses."
     figlet ${fig_default_opts} $center -f $sm_font My Public IP Addresses
+
+    echo -en ${co_default}
     figlet ${fig_default_opts} $center -f $sm_font -- "--------------------------"
-    figlet ${fig_default_opts} $center -f $sm_font $IPv4 
-    figlet ${fig_default_opts} $center -f $sm_font \($net4name\)
+    echo -en ${co_null}
+
+    if [ ! $hide_v4_if_nat ] && [ $have_ip ]; then
+	figlet ${fig_default_opts} $center -f $sm_font $IPv4
+	figlet ${fig_default_opts} $center -f $sm_font \($net4name\)
+	echo
+    fi
+
     if [ ! -z $IPv6 ]; then
         debug "* have ipv6, so printing IPv6 addresss."
-        echo
-        figlet ${fig_default_opts} $center -f $sm_font $IPv6 
+	echo -en ${co_magenta}
+        figlet ${fig_default_opts} $center -f $sm_font $IPv6
+	echo -en ${co_null}
         figlet ${fig_default_opts} $center -f $sm_font \($net6name\)
     fi
 fi
 
 echo
-debug "* printing group info."
-figlet ${fig_default_opts} $center -f $sm_font Your Groups
-figlet ${fig_default_opts} $center -f $sm_font -- "--------------"
-figlet ${fig_default_opts} $center -f $sm_font `groups`
-
-
-
-myfile=$(mktemp /dev/shm/syshead-${USER}-XXXX);
-debug "* creating temporary file: $myfile."
-# /usr/bin/df -hTP | grep ^dubkat | ccze
-mcount="`df -a | grep ^$USER | wc -l`"
-debug "* user $USER has $mcount personal mounts"
 
 realname="`finger $USER | grep Name | awk -F'Name: ' '{ print $2 }'`"
 
-
-#if [ "$EUID" != "0" ] && [ $mcount -gt 0 ]; then
-
-#    echo; echo;
-#    #echo "You currently have personal mountspace."
-#    #echo "The following informational lines explain mountpoint and space used."
-#    echo "Mount:Size:Used:Avail:Percent Used" > $myfile
-#    /usr/bin/df -hTPa | grep ^$USER |  awk '{ printf "%s:%s:%s:%s:%s\n", $7, $3, $4, $5, $6 }' >> $myfile
-#    cat $myfile | column -s: -t
-#    echo; echo;
-#
-#else
-   # if [ $EUID -eq 0 ]; then
-    #    echo "Mount:Size:Used:Avail:Percent Used" > $myfile
-        #/usr/bin/df -hTP -x tmpfs | awk '{ printf "%s:%s:%s:%s:%s\n", $7, $3, $4, $5, $6 }' >> $myfile
-        #cat $myfile | column -s: -t
-   # fi
-#fi
-
-unlink $myfile
 echo
-echo "Welcome ${realname}."
-#echo "`date`"
-#echo "%RED%Welcome %BOLD%%WHITE%${realname}%NORM%" #| sed  \
-#    -e 's/%RED%/\x1b[\[0;34m;/'  \
-#    -e 's/%BOLD%/\x1b[\[1;00m;/'  \
-#    -e 's/%WHITE%/\x1b[\[0;32m;/' \
-#    -e 's/%NORM%/\x1b[\[0;00m;/'  
+
+if [ $is_mac -eq 1 ]; then
+    echo Current Memory: $(top -d -l 1 | grep PhysMem | awk -F: '{ print $2 }' | xargs)
+fi
+
+HOME_SIZE="`du -hs $HOME | awk '{ print $1 }'`"
+
+echo -e Your home directory is ${co_magenta}$HOME${co_null} and consumes ${co_red}${HOME_SIZE}${co_null} of space.
+
+echo The date is $(date "+%A, %B %d %Y %Z")
+echo It is currently $(date "+%r")
+echo -n Welcome ${realname}.
+if [ _is_admin ]; then
+    echo -e " You are a ${co_red}GOD${co_null}."
+else
+    echo
+fi
 
 debug "* im done, peace out."
