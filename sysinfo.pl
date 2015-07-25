@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 
 # sysinfo.pl - Just Another Perl Linux Sysinfo Script
 # Copyright (C) 2006-2014 Dan Reidy (dubkat) <dubkat@gmail.com>
@@ -88,8 +88,8 @@ use POSIX;
 my $version = 0.9.2;
 my $rev     = '$Revision: 46 $';
 our $width;
-my ( $watch, $help, $doc, $ver, 
-     $host, $workload, $memory, 
+my ( $watch, $help, $doc, $ver,
+     $host, $workload, $memory,
      $net, $partitions, $compress) = undef;
 
 GetOptions(
@@ -186,7 +186,7 @@ This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation; either version 2 of the License, or
 (at your option) any later version.
- 
+
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -239,7 +239,7 @@ sub info_workload {
         if ( $vendor && $model && $mhz ) {
         $vendor =~ s/\s+/ /g;
         $model  =~ s/\s+/ /g;
-        printf "%-*s %s %s %dMHz\n", 
+        printf "%-*s %s %s %dMHz\n",
         $width, 'Processor:', $vendor, $model, $mhz;
     }
     printf "%-*s %-5s %d %-5s %d\n", $width, 'Encryption:', 'Entropy:', $entropy,
@@ -323,14 +323,14 @@ sub info_fs {
     	}
     }
     my ( $totalavail, $totalused, $totalfree, $totalusedper ) = 0;
-    
+
     unless ( $compress ) {
     	printf "%-*s %-*s %-*s %8s %8s %8s %3%\n", $width, 'Filesystems:', $l,
       	'Partition', 8, 'Mount', 'Total', 'Used', 'Free';
     } else {
     	printf "%-*s\n", $width, 'Filesystems:';
     }
-    
+
     foreach my $fs ( sort keys %{ $stats->{DiskUsage} } ) {
 
         $totalavail += $stats->{DiskUsage}->{$fs}->{total}
@@ -355,13 +355,13 @@ sub info_fs {
             makehuman( $stats->{DiskUsage}->{$fs}->{free} ),
             $stats->{DiskUsage}->{$fs}->{usageper}
         ) unless ( $fs =~ m/:/ );
-        
+
         # show nfs can be outragously long depending on settings
         # so lets make it more reasonable
         # TODO '--->'
         if ( !$hide_nfs && $fs =~ m/:/ ) {
         	# NFS mount points
-        	printf "%-*s %-*s %8s\n", $width, '', $l, $fs, 
+        	printf "%-*s %-*s %8s\n", $width, '', $l, $fs,
         	$stats->{DiskUsage}->{$fs}->{mountpoint};
         	# NFS Space
         	printf "%-*s `->%*s %*s %8s %8s %8s %3d%%", $width, '', $l-3, '', 8, '',
@@ -573,4 +573,3 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 =cut
-

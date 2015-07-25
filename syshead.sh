@@ -19,7 +19,7 @@
 #
 #################################################################################
 #
-# Version: 2015061900
+# Version: 2015070200
 
 # variables used in script, not settngs.
 fatal=0;
@@ -54,7 +54,12 @@ function _mac_detect
 
 function _is_admin
 {
-    return `groups | grep -cE '\bstaff\b|\bwheel\b|\badmin\b'`
+  local val=$(groups | grep -cE '\bwheel\b|\badmin\b');
+  if [ $val -eq 0 ]; then
+    return 0
+  else
+    return 1
+  fi
 }
 
 
