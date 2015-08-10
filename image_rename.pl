@@ -7,7 +7,7 @@
 #
 #     HOMEPAGE: http://google.com/+DanReidy
 #
-#    MORE INFO: http://misc-linux-tools.googlecode.com/
+#    MORE INFO: https://github.com/dubkat/misc-linux-tools
 #
 #      VERSION: 1.0
 #
@@ -33,7 +33,7 @@ use Env qw(HOME);
 
 my $root_path = shift @ARGV;
 my $seq = 0;
-my $output_dir = "/home/". $ENV{'HOME'} ."/Pictures/sorted";
+my $output_dir = $ENV{'HOME'} ."/Pictures/sorted";
 
 # if we want to make directories for year
 my $group_by_year = 1;
@@ -52,9 +52,9 @@ sub file_processor {
       file_processor($_);
     }
     else {
-      if ( $_ =~ m/\.(jpe?g|png|tiff?|3gp|webm|webp|mkv|mp4)/i ) {
+      if ( $_ =~ m/\.(jpe?g|png|tiff?|3gp|webm|webp|mkv|mp4|mov)/i ) {
 
-        # it's a jpeg, lets look up it's exif data.
+        # lets look up it's exif data.
         my $year;
         my $output = $output_dir;
         my $info = ImageInfo($_);
