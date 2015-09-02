@@ -20,6 +20,12 @@
 #################################################################################
 #
 # Version: 2015070200
+# It is expected that this file is sourced when the profile is loading during 
+# user login, and not run directly.
+#
+# We are not an interactive shell, there's no point in continuing.
+echo "\$- = $-"
+[[ $- =~ "i" ]] || exit $?
 
 # variables used in script, not settngs.
 fatal=0;
@@ -35,6 +41,17 @@ center=" -c "
 left=" -l "
 right=" -r "
 
+# color code holder
+co_blue=""
+co_green=""
+co_grey=""
+co_red=""
+co_yellow=""
+co_magenta=""
+co_cyan=""
+co_white=""
+co_null=""
+co_default=""
 
 function debug
 {
@@ -62,6 +79,24 @@ function _is_admin
   fi
 }
 
+function _activate_color
+{
+	# text format && color
+	#ORN=$(tput setaf 3); RED=$(tput setaf 1); BLU=$(tput setaf 4)
+	#GRN=$(tput setaf 40); MGN=$(tput setaf 5); CLR=$(tput sgr0)
+
+
+	co_blue="\e[0;34m"
+	co_green="\e[0;32m"
+	co_grey="\e[0;30m"
+	co_red="\e[0;31m"
+	co_yellow="\e[0;33m"
+	co_magenta="\e[0;35m"
+	co_cyan="\e[0;36m"
+	co_white="\e[0;37m"
+	co_null="\e[0m"
+}
+
 
 
 # MACHINE-INFO
@@ -70,23 +105,6 @@ LOCATION="<unknown>"
 DEPLOYMENT="standard"
 
 hide_v4_if_nat=0
-
-# text format && color
-#ORN=$(tput setaf 3); RED=$(tput setaf 1); BLU=$(tput setaf 4)
-#GRN=$(tput setaf 40); MGN=$(tput setaf 5); CLR=$(tput sgr0)
-
-
-co_blue="\e[0;34m"
-co_green="\e[0;32m"
-co_grey="\e[0;30m"
-co_red="\e[0;31m"
-co_yellow="\e[0;33m"
-co_magenta="\e[0;35m"
-co_cyan="\e[0;36m"
-co_white="\e[0;37m"
-co_null="\e[0m"
-co_default=""
-
 
 # the figfont "term"
 sm_font="term"
@@ -100,14 +118,12 @@ case "${TERM}" in
     screen ) ;;
     xterm* ) ;;
     *color* ) ;;
-
-    linux )
-        ##echo "Running from a console, how quaint."
-    ;;
+    linux ) 
+	_active_color
+	;;
 
     * )
-        message="Running from a $TERM is not supported here."
-        fatal=$[fatal + 1]
+
     ;;
 esac
 

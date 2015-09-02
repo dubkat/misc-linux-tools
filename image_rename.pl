@@ -4,15 +4,10 @@
 #    custom perl you may have installed. Usually /usr/bin/perl
 #
 #       AUTHOR: Dan Reidy (dubkat), dubkat@gmail.com
-#
 #     HOMEPAGE: http://google.com/+DanReidy
-#
 #    MORE INFO: https://github.com/dubkat/misc-linux-tools
-#
-#      VERSION: 1.0
-#
+#      VERSION: 1.2
 #      CREATED: 2015-07-24
-#
 #      LICENSE: GPL-2
 #
 # Disclaimer of Warranty: THE PACKAGE IS PROVIDED BY THE COPYRIGHT HOLDER AND CONTRIBUTORS "AS IS'
@@ -29,6 +24,7 @@ use if eval { require common::sense } == 0, "strict";
 use if eval { require common::sense } == 0, "warnings";
 
 use Image::ExifTool qw(:Public);
+use HTTP::Date;
 use Env qw(HOME);
 
 my $root_path = shift @ARGV;
@@ -52,45 +48,86 @@ sub file_processor {
       file_processor($_);
     }
     else {
-      if ( $_ =~ m/\.(jpe?g|png|tiff?|3gp|webm|webp|mkv|mp4|mov)/i ) {
+      # lets look up it's exif data.
+      my $year;
+      my $output = $output_dir;
+      my $info = ImageInfo($_);
+      my $create = $info->{'CreateDate'};
+      my $type = lc $info->{'FileType'};
+      my ($date,$time) = split / +/, $create;
+      $date =~ s/:/-/g;
+      my $stamp = str2time("$date $time");
+      $time =~ s/:/-/g;
+      
+      my ($sec,$min,$hour,$mday,$mon,$gyear,$wday,$yday,$isdst) = gmtime($stamp);
+      my $media_touch = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $gyear+1900, $mon, $mday, $hour, $min, $sec;
+      #print "DEBUG: stamp($stamp), media_touch($media_touch) \n";
 
-        # lets look up it's exif data.
-        my $year;
-        my $output = $output_dir;
-        my $info = ImageInfo($_);
-        my $create = $info->{'CreateDate'};
-        my $type = lc $info->{'FileType'};
-        my ($date,$time) = split / +/, $create;
-        $date =~ s/:/-/g;
-        $time =~ s/:/-/g;
-        if ( $group_by_year ) {
-          ($year) = $date =~ (m/(^\d{4})/);
-          if ( ! -d "$output_dir/$year" ) {
-            mkdir("$output_dir/$year") or die "Failed to create directory $output_dir/$year\n";
-          }
-          $output = "$output_dir/$year";
+
+
+      if ( $group_by_year ) {
+        ($year) = $date =~ (m/(^\d{4})/);
+        if ( ! -d "$output_dir/$year" ) {
+          mkdir("$output_dir/$year") or die "Failed to create directory $output_dir/$year\n";
         }
+        $output = "$output_dir/$year";
+      }
 
-        $create = sprintf("%s_%s", $date, $time);
-        next if $create eq "_";
-        my $edited = "";
-        my $basename = sprintf("%s/%s", $output, $create);
+      $create = sprintf("%s_%s", $date, $time);
+      next if $create eq "_";
+      my $edited = "";
+      my $basename = sprintf("%s/%s", $output, $create);
 
-        if ( $_ =~ m/\-edited\./ ) {
-          $edited = "-edited";
-        }
-        my $newfile = sprintf("%s%s.%s", $basename, $edited, $type);
-        while ( -e $newfile ) {
-          my $sequence = sprintf("%04d", $seq);
-          my $new_basename = $basename ."-". $sequence;
-          $newfile = sprintf("%s%s.%s", $new_basename, $edited, $type);
-          $seq++;
-        }
+      if ( $_ =~ m/\-edited\./ ) {
+        $edited = "-edited";
+      }
+      if ( $type =~ m/mov|3gp/ ) {
+        $type = 'mp4';
+      }
 
-        rename($_, $newfile);
+      my $newfile = sprintf("%s%s.%s", $basename, $edited, $type);
+      while ( -e $newfile ) {
+        my $sequence = sprintf("%04d", $seq);
+        my $new_basename = $basename ."-". $sequence;
+        $newfile = sprintf("%s%s.%s", $new_basename, $edited, $type);
+        $seq++;
+      }
+
+      if ( $_ =~ m/testing\.(jpe?g|png|tiff?|webm|webp|mkv|mp4)/i ) {
+
+
+        my @cmd = qq(mv -v $_ $newfile);
+        say @cmd;
+        system("mv", "-v", "$_", "$newfile");
         $seq = 0;
 
-        printf("%s -> %s\n", $_, $newfile);
+        #printf("%s -> %s\n", $_, $newfile);
+      }
+
+      #rename($_, $newfile);
+      if ($_ =~ /\.(3gp|mov)$/i ) {
+        my $info = ImageInfo($_);
+        my $vcodec = undef;
+        my $acodec = undef;
+        use Data::Dumper;
+        #print Dumper $info;
+        if( $info->{'CompressorID'} eq 'avc1' ) {
+          #video is already mp4 compatable.
+          $vcodec = "copy";
+        } else {
+          $vcodec = "libx264";
+        }
+        if ($info->{'AudioFormat'} eq 'aac' ) {
+          $acodec = "-acodec copy";
+        } else {
+          $acodec = "-strict -2";
+        }
+
+        my @cmd = qq(ffmpeg -i $_ -map 0 -metadata creation_time='$media_touch' -c:v $vcodec $acodec $newfile);
+        say @cmd;
+        system(@cmd);
+        $seq = 0;
+
       }
     }
   }
