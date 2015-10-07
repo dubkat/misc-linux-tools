@@ -23,9 +23,16 @@
 # It is expected that this file is sourced when the profile is loading during 
 # user login, and not run directly.
 #
-# We are not an interactive shell, there's no point in continuing.
-echo "\$- = $-"
-[[ $- =~ "i" ]] || exit $?
+#Updates can be downloaded from GitHub!
+# https://raw.githubusercontent.com/dubkat/misc-linux-tools/master/syshead.sh
+#
+
+# if you live in the EU, you may want to change this to 'whois.ripe.net'
+whois_server="whois.arin.net"
+
+
+
+[[ -z $PS1 ]] || return $?
 
 # variables used in script, not settngs.
 fatal=0;
@@ -53,14 +60,14 @@ co_white=""
 co_null=""
 co_default=""
 
-function debug
+function debug ()
 {
     if [ ! -z $syshead_debug ]; then
         echo "$*"
     fi
 }
 
-function _mac_detect
+function _mac_detect ()
 {
 	if [ -e "/usr/bin/sw_vers" ]; then
 		is_mac=1;
@@ -69,32 +76,54 @@ function _mac_detect
 	fig_default_opts="${fig_default_opts} -t"
 }
 
-function _is_admin
+function _is_admin ()
 {
-  local val=$(groups | grep -cE '\bwheel\b|\badmin\b');
-  if [ $val -eq 0 ]; then
-    return 0
-  else
-    return 1
-  fi
+	for group in `groups`; do
+		if [ "$group" = "admin" ] || [ "$group" = "wheel" ]; then
+			echo -n "Y"
+			return
+		fi
+	done
+	echo -n "N"
+	return
 }
 
-function _activate_color
+function _activate_color ()
 {
 	# text format && color
 	#ORN=$(tput setaf 3); RED=$(tput setaf 1); BLU=$(tput setaf 4)
 	#GRN=$(tput setaf 40); MGN=$(tput setaf 5); CLR=$(tput sgr0)
+	local colorsize=0
+	if [[ ! `hash tput >/dev/null 2>&1` ]]; then
+		colorsize=$(tput colors)
+	fi
+	
+	test $colorsize -gt 0 || return;
 
+	if [ $colorsize -eq 256 ]; then
+		co_red="$(tput setaf 160)";
+		co_green="$(tput setaf 28)";
+		co_yellow="$(tput setaf 106)";
+		co_blue="$(tput setaf 27)";
+		co_magenta="$(tput setaf 200)";
+		co_cyan="$(tput setaf 87)";
+		co_white="$(tput setaf 231)";
+		co_black=$(tput setaf 240);
+		co_null="$(tput sgr0)";
 
-	co_blue="\e[0;34m"
-	co_green="\e[0;32m"
-	co_grey="\e[0;30m"
-	co_red="\e[0;31m"
-	co_yellow="\e[0;33m"
-	co_magenta="\e[0;35m"
-	co_cyan="\e[0;36m"
-	co_white="\e[0;37m"
-	co_null="\e[0m"
+	else
+		co_red="$(tput setaf 001)";
+		co_green="$(tput setaf 002)";
+		co_yellow="$(tput setaf 003)";
+		co_blue="$(tput setaf 004)";
+		co_magenta="$(tput setaf 005)";
+		co_cyan="$(tput setaf 006)";
+		co_white="$(tput setaf 007)";
+		co_black=$(tput setaf 000);
+		co_null="$(tput sgr0)";
+	fi
+
+	return
 }
 
 
@@ -113,39 +142,24 @@ sm_font="term"
 big_font="shadow"
 
 # message too long fix
-case "${TERM}" in
-    *rxvt* ) ;;
-    screen ) ;;
-    xterm* ) ;;
-    *color* ) ;;
-    linux ) 
-	_active_color
-	;;
-
-    * )
-
-    ;;
-esac
-
-# message too long fix
 if [ "${TERM}" = "dumb" ]; then
     message="Dumb Term, Exiting.:${message}"
     fatal=$[fatal +1]
 fi
 
 
-if [ ! -x `which figlet` ]; then
+if [ `hash figlet >/dev/null 2>&1` ]; then
     message="Figlet is not installed.:${message}"
     fatal=$[fatal +1]
 fi
 
 
-if [ ! -x `which whois` ]; then
+if [ `hash whois >/dev/null 2>&1` ]; then
     message="Whois is not installed.:${message}"
     fatal=$[fatal +1]
 fi
 
-if [ ! -x `which finger` ]; then
+if [ `hash finger >/dev/null 2>&1` ]; then
     message="Finger is not installed.:${message}"
     fatal=$[fatal +1]
 fi
@@ -162,6 +176,9 @@ fi
 center=" -c "
 left=" -l "
 right=" -r "
+
+
+_activate_color
 
 # the following file is on systemd powered systems
 if [ -e "/etc/machine-info" ]; then
@@ -184,10 +201,15 @@ else
     fi
 fi
 
+
+if [[ ! `ping -c1 8.8.8.8 &>/dev/null`  ]]; then
+	havenet=1
+fi
+
 hostname_short="<unknown>"
 hostname_fqdn="unknown.example.org"
 
-if [ ! -x `which hostnamectl >/dev/null 2>&1` ]; then
+if [ `hash hostnamectl >/dev/null 2>&1` ]; then
     hostname_short="`hostnamectl --short`"
     hostname_fqdn="`hostnamectl --long`"
 else
@@ -195,38 +217,18 @@ else
     hostname_fqdn="`hostname -f`"
 fi
 
-debug "checking if i want full output, or short..."
-if [ ! -z $syshead_full ] && [ "x${syshead_full}" != "xyes" ]; then
-    debug "  * printing full output."
-    netstatus=`nm-online -q`
-
-    if [ "$netstatus" == "0" ]; then
-        if [ $(ping -c1 8.8.8.8 &>/dev/null ) ]; then
-            havenet=1
-        else
-            havenet=0
-        fi
-    elif [ "$netstatus" == "1" ]; then
-        message="Network is not currently connected."
-        havenet=0
-    elif [ "$netstatus" == "2" ]; then
-        message="Network is in an unknown state."
-        havenet=0
-    fi
-else
-    debug "   * printing short output."
-fi
-
 if [ $havenet ]; then
     debug "have a network, testing..."
     IPv4="$(curl --connect-timeout 10 -f -s -4 http://ip.appspot.com)"
     IPv6="$(curl --connect-timeout 10 -f -s -6 http://ip.appspot.com)"
     if [ ! -z $IPv4 ]; then
-        net4name="`whois $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
+        net4name="`whois -h ${whois_server:-whois.arin.net} $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
     fi
     if [ ! -z $IPv6 ]; then
         net6name="`whois $IPv6 | grep OrgName | awk -F": +" '{ print $2 }'`"
     fi
+	#echo "ipv4: $IPv4"
+	#echo "net4: $net4name"
 fi
 
 debug "* checking uptime."
@@ -258,7 +260,6 @@ echo -e ${co_null}
 echo
 
 if [ $havenet ]; then
-    have_ip="`/sbin/ifconfig | grep '$IPv4' | wc -l | xargs`"
 
     debug "* have a network, so printing IP addresses."
     figlet ${fig_default_opts} $center -f $sm_font My Public IP Addresses
@@ -267,18 +268,20 @@ if [ $havenet ]; then
     figlet ${fig_default_opts} $center -f $sm_font -- "--------------------------"
     echo -en ${co_null}
 
-    if [ ! $hide_v4_if_nat ] && [ $have_ip ]; then
-	figlet ${fig_default_opts} $center -f $sm_font $IPv4
-	figlet ${fig_default_opts} $center -f $sm_font \($net4name\)
+	echo -en ${co_green}
+	figlet ${fig_default_opts} $center -f $sm_font ${IPv4}
+	echo -en ${co_black}
+	figlet ${fig_default_opts} $center -f $sm_font $net4name
+	echo -en ${co_null}
 	echo
-    fi
 
     if [ ! -z $IPv6 ]; then
         debug "* have ipv6, so printing IPv6 addresss."
 	echo -en ${co_magenta}
         figlet ${fig_default_opts} $center -f $sm_font $IPv6
-	echo -en ${co_null}
-        figlet ${fig_default_opts} $center -f $sm_font \($net6name\)
+	echo -en ${co_black}
+        figlet ${fig_default_opts} $center -f $sm_font $net6name
+	echo -en ${co_default}
     fi
 fi
 
@@ -299,8 +302,9 @@ echo -e Your home directory is ${co_magenta}$HOME${co_null} and consumes ${co_re
 echo The date is $(date "+%A, %B %d %Y %Z")
 echo It is currently $(date "+%r")
 echo -n Welcome ${realname}.
-if [ _is_admin ]; then
-    echo -e " You are a ${co_red}GOD${co_null}."
+
+if [ "$(_is_admin)" = "Y" ]; then
+    echo -e " You have the ${co_green}GOD Particle${co_null}."
 else
     echo
 fi
