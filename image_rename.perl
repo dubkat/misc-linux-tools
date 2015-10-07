@@ -6,7 +6,7 @@
 #       AUTHOR: Dan Reidy (dubkat), dubkat@gmail.com
 #     HOMEPAGE: http://google.com/+DanReidy
 #    MORE INFO: https://github.com/dubkat/misc-linux-tools
-#      VERSION: 1.2
+#      VERSION: v15.10.07
 #      CREATED: 2015-07-24
 #      LICENSE: GPL-2
 #
