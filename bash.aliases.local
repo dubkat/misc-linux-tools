@@ -1,0 +1,48 @@
+# local bash aliases
+# (C) 2015 Dan Reidy <dubkat@gmail.com>
+
+export MAN_POSIXLY_CORRECT=true
+export TREE_OPTIONS="${TREE_OPTIONS:- --prune -p -s --du -h --sort=version --dirsfirst -A -C}"
+
+if test $UID = 0; then
+	alias zypper="command zypper --gpg-auto-import-keys"
+	alias atop="command atop -A -r /var/log/atop_$(TZ=date +%Y%m%d)"
+fi
+
+if groups | grep -qE '\bwheel\b'; then
+        alias zypper="sudo zypper --gpg-auto-import-keys"
+fi
+
+if hash kde-open5 2>/dev/null; then
+        alias open="kde-open5"
+elif hash kde-open >/dev/null; then
+        alias open="kde-open"
+fi
+
+if hash tree 2>/dev/null; then
+	alias tree="command tree $TREE_OPTIONS"
+fi	
+
+if hash dog 2>/dev/null; then
+        alias cat="dog"
+fi
+
+#if hash gcp 2>/dev/null; then
+#	alias cp="gcp --progress-bar"
+#fi
+#if hash gmv 2>/dev/null; then
+#	alias mv="gmv --progress-bar"
+#fi
+
+if hash colorsvn 2>/dev/null; then
+	alias svn="colorsvn"
+fi
+
+alias ll="ls -gG --dereference"
+alias dir="ls --classify"
+alias app_version="TZ=UTC date '+v%y.%m.%d'"
+alias datetime="date '+%Y-%m-%d %H:%M:%S %Z'"
+alias isodate="date '+%F'"
+alias cls=clear
+alias service="/usr/sbin/service"
+

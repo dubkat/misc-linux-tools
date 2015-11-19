@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 # sysinfo.pl - Just Another Perl Linux Sysinfo Script
 # Copyright (C) 2006-2014 Dan Reidy (dubkat) <dubkat@gmail.com>

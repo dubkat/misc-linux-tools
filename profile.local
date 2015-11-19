@@ -1,0 +1,25 @@
+export BASH_OPTS="extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit"
+export RXVT_SOCKET="/run/user/${UID}/rxvt-unicode.sock"
+export COLORS="$(tput colors)"
+export LS_OPTIONS="--color=auto --sort=version --human-readable --group-directories-first --time-style=long-iso --indicator-style=file-type $LS_OPTIONS_LOCAL"
+export COLORIZE=${COLORIZE:-yes}
+
+if [ $UID = 0 ]; then
+	TZ="${TZ:-UTC}"
+else
+	TZ="${TZ:-`date +%Z`}"
+fi
+export TZ
+
+if groups | grep -qE '\bwheel\b'; then
+	export PATH="/usr/local/sbin:/usr/sbin:/sbin:$PATH"
+fi
+
+if [ "$is" = "bash" ]; then
+	for x in $BASH_OPTS; do
+		shopt -s $x
+	done
+fi
+
+test -r ~/.profile && . ~/.profile || true
+

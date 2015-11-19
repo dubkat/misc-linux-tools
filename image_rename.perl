@@ -1,4 +1,4 @@
-#!/opt/local/bin/perl
+#!/usr/bin/env perl
 
 #^^^ This should point to your system's perl, or which ever
 #    custom perl you may have installed. Usually /usr/bin/perl
@@ -29,7 +29,7 @@ use strict;
 use warnings;
 use Carp;
 use feature qw(say);
-use version; our $VERSION = 'v15.10.07';
+use version; our $VERSION = 'v15.11.18';
 
 use Image::ExifTool qw(:Public);
 use HTTP::Date;
@@ -41,6 +41,7 @@ my $output_dir = $ENV{'HOME'} ."/Pictures/sorted";
 
 # if we want to make directories for year
 my $group_by_year = 1;
+my $delete_thumbs = 1;
 
 
 sub file_processor {
@@ -58,6 +59,7 @@ sub file_processor {
       file_processor($_);
     }
     else {
+      unlink $_ if ( $delete_thumbs && $_ =~ m/.THM$/x );
       next unless $_ =~ m/\.(jpe?g|png|tiff?|webm|webp|mkv|mp4|mov)$/ix;
 
       say "Processing file: $_";
@@ -67,6 +69,9 @@ sub file_processor {
       my $info = ImageInfo($_);
       my $create = $info->{'CreateDate'};
       my $type = lc $info->{'FileType'};
+      if ( $type eq "jpeg" ) { 
+	$type = "jpg";
+      }
       my ($date,$time) = split / +/, $create;
       $date =~ s/:/-/gx;
       my $stamp = str2time("$date $time");
@@ -79,7 +84,7 @@ sub file_processor {
       if ( $group_by_year ) {
         ($year) = $date =~ (m/(^\d{4})/x);
         if ( ! -d "$output_dir/$year" ) {
-          mkdir("$output_dir/$year") or die "Failed to create directory $output_dir/$year\n";
+          mkdir("$output_dir/$year") or croak "Failed to create directory $output_dir/$year\n";
         }
         $output = "$output_dir/$year";
       }
@@ -104,12 +109,10 @@ sub file_processor {
         $seq++;
       }
 
+      my @cmd;
+
       if ( $_ =~ m/\.(jpe?g|png|tiff?|webp)$/ix ) {
         my @cmd = qq(mv -v $_ $newfile);
-        #say @cmd;
-        system(@cmd);
-        $seq = 1;
-        #printf("%s -> %s\n", $_, $newfile);
       }
 
       #rename($_, $newfile);
@@ -130,20 +133,19 @@ sub file_processor {
         } else {
           $acodec = "-strict -2";
         }
-
         my @cmd = qq(ffmpeg -i $_ -map 0 -metadata creation_time='$media_touch' -c:v $vcodec $acodec $newfile);
-        say @cmd;
-        system(@cmd);
-        $seq = 1;
-
       }
+      system(@cmd);
+      $seq = 1;
     }
   }
   return;
 }
 
 if ( ! -d $root_path ) { croak "First arguement must be a directory."; }
-if ( ! -d $output_dir ) { croak "Script setting \$output_dir is not a directory."; }
+if ( ! -d $output_dir ) { 
+	qx{mkdir -p $output_dir} || croak "Failed to create output directory.";
+}
 
 print "Attempting to open $root_path\n";
 file_processor $root_path;

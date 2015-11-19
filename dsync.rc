@@ -1,0 +1,25 @@
+# our remote, middleman server
+dsync_middleman="ssh.example.com"
+
+# a list of directories, relative to your ~/
+# this essentially says: $HOME/DIR_TO_SYNC, $HOME/Pictures, etc
+dsync_sync="DIR_TO_SYNC Pictures Mail Downloads"
+
+# rsync protocol to use, for our purposes, we want to use ssh
+dsync_protocol="ssh"
+
+# these are te default rsync options.
+# -azL --perms --xattrs --hard-links --times --update --backup --sparse --cvs-exclude --delay-updates
+# if you want to modify that, add below.
+# for example" --no-perms --no-hard-links" etc... use with care.
+# ...
+# you can use these as ENV variables too
+# dsync_upextra="--dry-run" ./dsync.sh
+# extra opts for UPLOADING
+dsync_upextra=""
+
+# same for downloading...
+dsync_downextra=""
+
+# where we store our checksums
+dsync_dir="~/.dsync"
