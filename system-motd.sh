@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # syshead.sh - Print a useful, dynamic MOTD on user login.
-# Copyright (C) 2014-2015 Dan Reidy <dubkat@gmail.com>, http://plus.google.com/+DanReidy
+# Copyright (C) 2014-2016 Dan Reidy <dubkat@gmail.com>, http://plus.google.com/+DanReidy
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -19,12 +19,10 @@
 #
 #################################################################################
 #
-# Version: 2015070200
-# It is expected that this file is sourced when the profile is loading during 
-# user login, and not run directly.
+# Version: 2016031500
 #
 #Updates can be downloaded from GitHub!
-# https://raw.githubusercontent.com/dubkat/misc-linux-tools/master/syshead.sh
+# https://raw.githubusercontent.com/dubkat/misc-linux-tools/master/system-motd.sh
 #
 
 # if you live in the EU, you may want to change this to 'whois.ripe.net'
@@ -32,7 +30,7 @@ whois_server="whois.arin.net"
 
 
 
-[[ -z $PS1 ]] || return $?
+[[ -z $PS1 ]] || return
 
 # variables used in script, not settngs.
 fatal=0;
@@ -48,6 +46,10 @@ center=" -c "
 left=" -l "
 right=" -r "
 
+sys_vendor="$(</sys/class/dmi/id/sys_vendor)"
+sys_product="$(</sys/class/dmi/id/product_name)"
+sys_chassis="$(hostnamectl | grep -i chassis | awk -F: '{ print $NF }' | xargs)"
+
 # color code holder
 co_blue=""
 co_green=""
@@ -59,71 +61,74 @@ co_cyan=""
 co_white=""
 co_null=""
 co_default=""
+co_bold=""
 
 function debug ()
 {
-    if [ ! -z $syshead_debug ]; then
-        echo "$*"
-    fi
+  if [ ! -z $syshead_debug ]; then
+    echo "$*"
+  fi
 }
 
 function _mac_detect ()
 {
-	if [ -e "/usr/bin/sw_vers" ]; then
-		is_mac=1;
-		return
-	fi
-	fig_default_opts="${fig_default_opts} -t"
+  if [ -e "/usr/bin/sw_vers" ]; then
+    is_mac=1;
+    return
+  fi
+  fig_default_opts="${fig_default_opts} -t"
 }
 
 function _is_admin ()
 {
-	for group in `groups`; do
-		if [ "$group" = "admin" ] || [ "$group" = "wheel" ]; then
-			echo -n "Y"
-			return
-		fi
-	done
-	echo -n "N"
-	return
+  for group in `groups`; do
+    if [ "$group" = "admin" ] || [ "$group" = "wheel" ]; then
+      echo -n "Y"
+      return
+    fi
+  done
+  echo -n "N"
+  return
 }
 
 function _activate_color ()
 {
-	# text format && color
-	#ORN=$(tput setaf 3); RED=$(tput setaf 1); BLU=$(tput setaf 4)
-	#GRN=$(tput setaf 40); MGN=$(tput setaf 5); CLR=$(tput sgr0)
-	local colorsize=0
-	if [[ ! `hash tput >/dev/null 2>&1` ]]; then
-		colorsize=$(tput colors)
-	fi
-	
-	test $colorsize -gt 0 || return;
+  # text format && color
+  #ORN=$(tput setaf 3); RED=$(tput setaf 1); BLU=$(tput setaf 4)
+  #GRN=$(tput setaf 40); MGN=$(tput setaf 5); CLR=$(tput sgr0)
+  local colorsize=0
+  if hash tput >/dev/null 2>&1; then
+    colorsize=$(tput colors)
+  fi
 
-	if [ $colorsize -eq 256 ]; then
-		co_red="$(tput setaf 160)";
-		co_green="$(tput setaf 28)";
-		co_yellow="$(tput setaf 106)";
-		co_blue="$(tput setaf 27)";
-		co_magenta="$(tput setaf 200)";
-		co_cyan="$(tput setaf 87)";
-		co_white="$(tput setaf 231)";
-		co_black=$(tput setaf 240);
-		co_null="$(tput sgr0)";
+  test $colorsize -gt 0 || return;
 
-	else
-		co_red="$(tput setaf 001)";
-		co_green="$(tput setaf 002)";
-		co_yellow="$(tput setaf 003)";
-		co_blue="$(tput setaf 004)";
-		co_magenta="$(tput setaf 005)";
-		co_cyan="$(tput setaf 006)";
-		co_white="$(tput setaf 007)";
-		co_black=$(tput setaf 000);
-		co_null="$(tput sgr0)";
-	fi
+  if [ $colorsize -eq 256 ]; then
+    co_bold="$(tput bold)";
+    co_red="$(tput setaf 160)";
+    co_green="$(tput setaf 28)";
+    co_yellow="$(tput setaf 106)";
+    co_blue="$(tput setaf 27)";
+    co_magenta="$(tput setaf 200)";
+    co_cyan="$(tput setaf 87)";
+    co_white="$(tput setaf 231)";
+    co_black=$(tput setaf 240);
+    co_null="$(tput sgr0)";
 
-	return
+  else
+    co_bold="$(tput bold)";
+    co_red="$(tput setaf 001)";
+    co_green="$(tput setaf 002)";
+    co_yellow="$(tput setaf 003)";
+    co_blue="$(tput setaf 004)";
+    co_magenta="$(tput setaf 005)";
+    co_cyan="$(tput setaf 006)";
+    co_white="$(tput setaf 007)";
+    co_black=$(tput setaf 000);
+    co_null="$(tput sgr0)";
+  fi
+
+  return
 }
 
 
@@ -139,38 +144,41 @@ hide_v4_if_nat=0
 sm_font="term"
 
 # the big header font to use...
-big_font="shadow"
+# if we have toilet installed, use this font...
+toilet_big_font="pagga"
+figlet_big_font="shadow"
 
 # message too long fix
 if [ "${TERM}" = "dumb" ]; then
-    message="Dumb Term, Exiting.:${message}"
-    fatal=$[fatal +1]
+  return
+  #message="Dumb Term, Exiting.:${message}"
+  #fatal=$[fatal +1]
 fi
 
 
-if [ `hash figlet >/dev/null 2>&1` ]; then
-    message="Figlet is not installed.:${message}"
-    fatal=$[fatal +1]
+if ! hash figlet >/dev/null 2>&1; then
+  message="Figlet is not installed.:${message}"
+  fatal=$[fatal +1]
 fi
 
 
-if [ `hash whois >/dev/null 2>&1` ]; then
-    message="Whois is not installed.:${message}"
-    fatal=$[fatal +1]
+if ! hash whois >/dev/null 2>&1; then
+  message="Whois is not installed.:${message}"
+  fatal=$[fatal +1]
 fi
 
-if [ `hash finger >/dev/null 2>&1` ]; then
-    message="Finger is not installed.:${message}"
-    fatal=$[fatal +1]
+if ! hash finger >/dev/null 2>&1; then
+  message="Finger is not installed.:${message}"
+  fatal=$[fatal +1]
 fi
 
 if [ $fatal -gt 0 ]; then
-    echo "There are $fatal fatal errors."
-    echo
-    echo "**"
-    echo "* $message" | sed -e 's/:/\n* /g'
-    echo
-    exit $fatal
+  echo "There are $fatal fatal errors."
+  echo
+  echo "**"
+  echo "* $message" | sed -e 's/:/\n* /g'
+  echo
+  exit $fatal
 fi
 
 center=" -c "
@@ -182,53 +190,48 @@ _activate_color
 
 # the following file is on systemd powered systems
 if [ -e "/etc/machine-info" ]; then
-    . /etc/machine-info 2>/dev/null
+  . /etc/machine-info 2>/dev/null
 fi
 
 if [ -e "/etc/os-release" ]; then
-    . /etc/os-release 2>&1 >/dev/null
-    if [ ! -z $ANSI_COLOR ]; then
-        co_default="\e[${ANSI_COLOR}m"
-    fi
+  . /etc/os-release 2>&1 >/dev/null
+  if [ ! -z $ANSI_COLOR ]; then
+    co_default="\e[${ANSI_COLOR}m"
+  fi
 else
-    _mac_detect
-    if [ $is_mac ]; then
-	PRETTY_NAME="`sw_vers -productName` `sw_vers -productVersion`"
-	co_default="${co_blue}"
-    else
-	PRETTY_NAME="`uname -s` `uname -r` (`uname -m`)"
-	co_default="\e[${co_cyan}"
-    fi
+  _mac_detect
+  if [ $is_mac ]; then
+    PRETTY_NAME="`sw_vers -productName` `sw_vers -productVersion`"
+    co_default="${co_blue}"
+  else
+    PRETTY_NAME="`uname -s` `uname -r` (`uname -m`)"
+    co_default="\e[${co_cyan}"
+  fi
 fi
 
+hostname_short=""
+hostname_fqdn=""
 
-if [[ ! `ping -c1 8.8.8.8 &>/dev/null`  ]]; then
-	havenet=1
-fi
-
-hostname_short="<unknown>"
-hostname_fqdn="unknown.example.org"
-
-if [ `hash hostnamectl >/dev/null 2>&1` ]; then
-    hostname_short="`hostnamectl --short`"
-    hostname_fqdn="`hostnamectl --long`"
+if hash hostnamectl >/dev/null 2>&1; then
+  hostname_short="`hostnamectl --pretty`"
+  hostname_fqdn="`hostnamectl --static`"
 else
-    hostname_short="`hostname -s`"
-    hostname_fqdn="`hostname -f`"
+  hostname_short="`hostname -s`"
+  hostname_fqdn="`hostname -f`"
 fi
 
 if [ $havenet ]; then
-    debug "have a network, testing..."
-    IPv4="$(curl --connect-timeout 10 -f -s -4 http://ip.appspot.com)"
-    IPv6="$(curl --connect-timeout 10 -f -s -6 http://ip.appspot.com)"
-    if [ ! -z $IPv4 ]; then
-        net4name="`whois -h ${whois_server:-whois.arin.net} $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
-    fi
-    if [ ! -z $IPv6 ]; then
-        net6name="`whois $IPv6 | grep OrgName | awk -F": +" '{ print $2 }'`"
-    fi
-	#echo "ipv4: $IPv4"
-	#echo "net4: $net4name"
+  debug "have a network, testing..."
+  IPv4="$(curl --connect-timeout 5 -f -s -4 http://ip.appspot.com)"
+  IPv6="$(curl --connect-timeout 5 -f -s -6 http://ip.appspot.com)"
+  if [ ! -z $IPv4 ]; then
+    net4name="`whois -h ${whois_server:-whois.arin.net} $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
+  fi
+  if [ ! -z $IPv6 ]; then
+    net6name="`whois $IPv6 | grep OrgName | awk -F": +" '{ print $2 }'`"
+  fi
+  #echo "ipv4: $IPv4"
+  #echo "net4: $net4name"
 fi
 
 debug "* checking uptime."
@@ -240,20 +243,26 @@ USERCOUNT="`who | awk '{ print $1 }' | sort | uniq | wc -l | xargs`"
 
 debug "begin output.."
 echo -e ${co_default}
-figlet ${fig_default_opts} $center -f $big_font $hostname_short
+if hash toilet >/dev/null 2>&1; then
+  figlet ${fig_default_opts} $center -f $toilet_big_font $hostname_short
+else
+  figlet ${fig_default_opts} $center -f $figlet_big_font $hostname_short
+fi
 figlet ${fig_default_opts} $center -f $sm_font $hostname_fqdn
 figlet ${fig_default_opts} $center -f $sm_font $PRETTY_NAME
 figlet ${fig_default_opts} $center -f $sm_font "`uname -s` `uname -r` (`uname -m`)"
+figlet ${fig_default_opts} $center -f $sm_font Hardware: ${sys_vendor} ${sys_product}
+figlet ${fig_default_opts} $center -f $sm_font Chassis: ${sys_chassis}
 
 
 if [ $is_mac -eq 0 ]; then
-    figlet ${fig_default_opts} $center -f $sm_font Entropy $(</proc/sys/kernel/random/entropy_avail) / $(</proc/sys/kernel/random/poolsize)
+  figlet ${fig_default_opts} $center -f $sm_font Entropy: $(</proc/sys/kernel/random/entropy_avail) / $(</proc/sys/kernel/random/poolsize)
 fi
 
-figlet ${fig_default_opts} $center -f $sm_font $USERCOUNT users online. \($LOAD\)
+figlet ${fig_default_opts} $center -f $sm_font Users: $USERCOUNT users online. \($LOAD\)
 figlet ${fig_default_opts} $center -f $sm_font System Online: $UPTIME
 if [ ! -z "$LOCATION" ]; then
-    figlet ${fig_default_opts} $center -f $sm_font Location: $LOCATION
+  figlet ${fig_default_opts} $center -f $sm_font Location: $LOCATION
 fi
 
 echo -e ${co_null}
@@ -261,28 +270,28 @@ echo
 
 if [ $havenet ]; then
 
-    debug "* have a network, so printing IP addresses."
-    figlet ${fig_default_opts} $center -f $sm_font My Public IP Addresses
+  debug "* have a network, so printing IP addresses."
+  figlet ${fig_default_opts} $center -f $sm_font My Public IP Addresses
 
+  echo -en ${co_default}
+  figlet ${fig_default_opts} $center -f $sm_font -- "--------------------------"
+  echo -en ${co_null}
+
+  echo -en ${co_green}
+  figlet ${fig_default_opts} $center -f $sm_font ${IPv4}
+  echo -en ${co_black}
+  figlet ${fig_default_opts} $center -f $sm_font $net4name
+  echo -en ${co_null}
+  echo
+
+  if [ ! -z $IPv6 ]; then
+    debug "* have ipv6, so printing IPv6 addresss."
+    echo -en ${co_magenta}
+    figlet ${fig_default_opts} $center -f $sm_font $IPv6
+    echo -en ${co_black}
+    figlet ${fig_default_opts} $center -f $sm_font $net6name
     echo -en ${co_default}
-    figlet ${fig_default_opts} $center -f $sm_font -- "--------------------------"
-    echo -en ${co_null}
-
-	echo -en ${co_green}
-	figlet ${fig_default_opts} $center -f $sm_font ${IPv4}
-	echo -en ${co_black}
-	figlet ${fig_default_opts} $center -f $sm_font $net4name
-	echo -en ${co_null}
-	echo
-
-    if [ ! -z $IPv6 ]; then
-        debug "* have ipv6, so printing IPv6 addresss."
-	echo -en ${co_magenta}
-        figlet ${fig_default_opts} $center -f $sm_font $IPv6
-	echo -en ${co_black}
-        figlet ${fig_default_opts} $center -f $sm_font $net6name
-	echo -en ${co_default}
-    fi
+  fi
 fi
 
 echo
@@ -292,21 +301,23 @@ realname="`finger $USER | grep Name | awk -F'Name: ' '{ print $2 }'`"
 echo
 
 if [ $is_mac -eq 1 ]; then
-    echo Current Memory: $(top -d -l 1 | grep PhysMem | awk -F: '{ print $2 }' | xargs)
+  echo Current Memory: $(top -d -l 1 | grep PhysMem | awk -F: '{ print $2 }' | xargs)
 fi
 
-HOME_SIZE="`du -hs $HOME | awk '{ print $1 }'`"
+# enable this if you want, but can take a long time to process large home directories.
+#HOME_SIZE="`du -hs $HOME | awk '{ print $1 }'`"
 
-echo -e Your home directory is ${co_magenta}$HOME${co_null} and consumes ${co_red}${HOME_SIZE}${co_null} of space.
+if [ ! -z $HOME_SIZE ]; then
+  echo -e Your home directory is ${co_magenta}$HOME${co_null} and consumes ${co_red}${HOME_SIZE}${co_null} of space.
+fi
 
 echo The date is $(date "+%A, %B %d %Y %Z")
 echo It is currently $(date "+%r")
-echo -n Welcome ${realname}.
 
 if [ "$(_is_admin)" = "Y" ]; then
-    echo -e " You have the ${co_green}GOD Particle${co_null}."
+  echo -e "Welcome ${co_bold}Jedi Master${co_null} ${realname}. May the Force be with you."
 else
-    echo
+  echo "Welcome ${realname}."
 fi
 
 debug "* im done, peace out."
