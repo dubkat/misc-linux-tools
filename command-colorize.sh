@@ -49,10 +49,10 @@ if hash di 2>/dev/null; then
 fi
 
 
-function ps {
+#function ps {
 	#command ps $* | colout '(USER|PID|%CPU|%MEM|VSZ|RSS|TT|STAT|STARTED|TIME|COMMAND)' white, underline | colout '^.*$' Random
-	command ps $* | colout '^([ ^]+) .*' Hash Hash
-}
+#	command ps $* | colout '^([ ^]+) .*' Hash Hash
+#}
 
 function mount {
 	command mount $* | colout '^(\S+) on (\S+) type (\S+) \((.*)\)$' green,cyan,blue,magenta bold

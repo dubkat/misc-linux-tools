@@ -18,8 +18,11 @@ function footer {
 hcolor=220
 jump=5
 start=
-
-figlet -f mini -c "~~Terminal $(tput colors) Color Pallet~~" | colout '([\/\)])|([\)\(`\-_\|])|([.o])' Rainbow,Rainbow,Rainbow bold,bold,blink
+font=standard
+if hash toilet >/dev/null 2>&1; then
+	font=future
+fi
+figlet -f $font -c "~~ $(tput colors) Color Pallet ~~" | colout '([\/\)])|([\)\(`\-_\|])|([.o])' Rainbow,Rainbow,Rainbow bold,bold,blink
 footer;
 
 echo; echo;
