@@ -20,6 +20,15 @@ if hash colorsvn 2>/dev/null; then
 fi
 
 
+if hash zypper 2>/dev/null; then
+	function _repo_list {
+        	zypper lr | colout --scale 0,100 \
+                '(^#.*$)|([─│┼])|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
+                 white,purple,green,red,Spectrum,Scale reverse,normal,bold,bold,Spectrum,Scale;
+	}
+	alias repo-list="_repo_list"
+fi
+
 
 function df {
 	fsrx='(/[^ ]*)'
