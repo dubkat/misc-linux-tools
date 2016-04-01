@@ -1,0 +1,21 @@
+[Unit]
+Description=Blitzed Open Proxy Monitor
+Wants=network-online.target
+
+[Service]
+User=bopm
+Group=bopm
+LimitNOFILE=12375
+StandardOutput=journal
+StandardError=null
+
+ExecStart=/usr/local/bin/bopm -d -c your-bopm
+ExecStop=/usr/bin/kill -TERM $MAINPID
+ExecReload=/usr/bin/kill -HUP $MAINPID
+Restart=always
+RestartSec=15
+RemainAfterExit=no
+
+[Install]
+WantedBy=multi-user.target
+
