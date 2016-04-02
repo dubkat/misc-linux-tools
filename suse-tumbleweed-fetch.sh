@@ -26,48 +26,34 @@
 # i686: GNOME-Live, KDE-Live, Rescue-CD
 # x86_64: All the above.
 # This can be a space seperated list.
-wanted_arch="x86_64"
+wanted_arch="x86_64 i586"
 
 # Which image flavor do we want, this can be a space seperated list
-wanted_flavor="KDE-Live"
+wanted_flavor="NET"
 
 # Where do we save the results
-save_prefix="/Users/dubkat/ISOs"
+save_prefix="/mnt/isoz"
 
 # The mirror and path where we will find our ISO.
 #suse_mirror="http://mirrors.us.kernel.org/opensuse/factory/iso"
-suse_mirror="http://opensuse.temple.edu/factory/iso/"
+suse_mirror="http://download.opensuse.org/tumbleweed/iso"
 
 # end of settings
+
 ########################################
+if ! hash aria2c 2>/dev/null; then
+    echo "please install the aria2 downloader." 2>/dev/stderr
+    exit 1
+fi
 
-fetcher=
-options=
-
-#checked in order...
-prefered_fetchers="aria2c wget"
-
-wget_options="--no-http-keep-alive --no-cookies --directory-prefix=\"${save_prefix}\"
---continue --show-progress --trust-server-names --timestamping"
-
-aria2_options=""
-
-# probably broken
-for x in $prefered_fetchers; do
-  if [ -x "`which $x`" ]; then
-    fetcher="`which $x`"
-    options="${${x}_options}"
-    break;
-  fi
-done
-
-
-
+disturl=
 
 # stop, hammer time!
 for arch in $wanted_arch; do
   for flavor in $wanted_flavor; do
+      disturl="${suse_mirror}/openSUSE-Tumbleweed-${flavor}-${arch}-Current.iso.meta4 "
+      aria2c --continue -d $save_prefix $disturl
+      [ $? -eq 0 ] && rm "${save_prefix}/openSUSE-Tumbleweed-${flavor}-${arch}-Snapshot*-Media.iso.meta4"
 
-    "${suse_mirror}/openSUSE-Tumbleweed-${flavor}-${arch}-Current.iso"
   done
 done
