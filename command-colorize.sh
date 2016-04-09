@@ -22,10 +22,13 @@ fi
 
 if hash zypper 2>/dev/null; then
 	function _repo_list {
-        	zypper lr | colout --scale 0,100 \
-                '(^#.*$)|([─│┼])|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
-                 white,purple,green,red,Spectrum,Scale reverse,normal,bold,bold,Spectrum,Scale;
+		arg="${1:- -pa}"
+    	sudo zypper lr $arg | colout -d Spectrum --scale 0,100 \
+		'(^#.*$)|([─│┼])|((?:base|repo|obs|fact(?:ory)?)-[^ ]+)|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
+		white,purple,Hash,green,red,Spectrum,Scale \
+		reverse,normal,Spectrum,bold,bold,Spectrum,Scale
 	}
+
 	alias repo-list="_repo_list"
 fi
 
