@@ -27,7 +27,16 @@
 
 # if you live in the EU, you may want to change this to 'whois.ripe.net'
 whois_server="whois.arin.net"
+# other options include ip.appspot.com
+external_ip_src="http://ifconfig.co"
 
+# no figlet header.
+no_fig_header="1"
+
+# display this text file as header
+# useful for custom logo, etc
+# no_fig_header must be 1
+custom_header_file="/etc/leaf"
 
 
 [[ -z $PS1 ]] || return
@@ -49,6 +58,10 @@ right=" -r "
 sys_vendor="$(</sys/class/dmi/id/sys_vendor)"
 sys_product="$(</sys/class/dmi/id/product_name)"
 sys_chassis="$(hostnamectl | grep -i chassis | awk -F: '{ print $NF }' | xargs)"
+if [ $sys_chassis = "vm" ]; then
+  sys_vendor="${sys_product}";
+  sys_product=""
+fi
 
 # color code holder
 co_blue=""
@@ -158,6 +171,7 @@ fi
 
 if ! hash figlet >/dev/null 2>&1; then
   message="Figlet is not installed.:${message}"
+  message="Toilet is also recommended.:${message}"
   fatal=$[fatal +1]
 fi
 
@@ -222,8 +236,9 @@ fi
 
 if [ $havenet ]; then
   debug "have a network, testing..."
-  IPv4="$(curl --connect-timeout 5 -f -s -4 http://ip.appspot.com)"
-  IPv6="$(curl --connect-timeout 5 -f -s -6 http://ip.appspot.com)"
+  IPv4="$(curl --connect-timeout 5 -f -s -4 ${external_ip_src})"
+  IPv6="$(curl --connect-timeout 5 -f -s -6 ${external_ip_src})"
+
   if [ ! -z $IPv4 ]; then
     net4name="`whois -h ${whois_server:-whois.arin.net} $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
   fi
@@ -242,16 +257,21 @@ debug "* checking usercount"
 USERCOUNT="`who | awk '{ print $1 }' | sort | uniq | wc -l | xargs`"
 
 debug "begin output.."
-echo -e ${co_default}
-if hash toilet >/dev/null 2>&1; then
-  figlet ${fig_default_opts} $center -f $toilet_big_font $hostname_short
-else
-  figlet ${fig_default_opts} $center -f $figlet_big_font $hostname_short
-fi
-figlet ${fig_default_opts} $center -f $sm_font $hostname_fqdn
-figlet ${fig_default_opts} $center -f $sm_font $PRETTY_NAME
-figlet ${fig_default_opts} $center -f $sm_font "`uname -s` `uname -r` (`uname -m`)"
-figlet ${fig_default_opts} $center -f $sm_font Hardware: ${sys_vendor} ${sys_product}
+if [ $no_fig_header -eq 0 ]; then
+  echo -e ${co_default}
+  if hash toilet >/dev/null 2>&1; then
+    figlet ${fig_default_opts} $center -f $toilet_big_font $hostname_short
+  else
+    figlet ${fig_default_opts} $center -f $figlet_big_font $hostname_short
+  fi
+elif [ $no_fig_header -eq 1 ] && [ -f $custom_header_file ]; then
+  cat $custom_header_file
+  echo -e ${co_default}
+fi 
+figlet ${fig_default_opts} $center -f $sm_font $hostname_fqdn 
+figlet ${fig_default_opts} $center -f $sm_font $PRETTY_NAME 
+figlet ${fig_default_opts} $center -f $sm_font "`uname -s` `uname -r` (`uname -m`)" 
+figlet ${fig_default_opts} $center -f $sm_font Hardware: ${sys_vendor} ${sys_product} 
 figlet ${fig_default_opts} $center -f $sm_font Chassis: ${sys_chassis}
 
 
