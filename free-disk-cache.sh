@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
-# free-system-cache - Free up memory by dropping disk cache
-# Copyleft Ⓛ 2016 Dan Reidy <dubkat+github@gmail.com>
+#!/bin/sh
+# free-disk-cache - Free up memory by dropping disk cache
+# Copyleft (L) 2016 Dan Reidy <dubkat+github@gmail.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -86,9 +86,14 @@ fi
 
 status_only=1
 if [ ! -z "$1" ]; then
-  if echo $1 | grep -Eq "^-?flush$"; then
-    status_only=0
-  fi
+  case "$1" in
+     "-f"|"--flush" ) status_only=0; ;;
+     * )
+        echo -e "${red}*${rst} usage: ${bld}$(basename $0)${rst}";
+        echo -e "${red}*${rst} usage: ${bld}$(basename $0) -f|--flush${rst}";
+        exit 1;
+        ;;
+  esac
 fi
 
 [ $status_only -eq 0 ] && printf "${bld}Please Wait...${rst}"
