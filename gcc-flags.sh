@@ -1,16 +1,26 @@
 #!/bin/bash
+# print the full gcc command if -march=native is used.
+# Copyleft (L) Dan Reidy <dubkat+github@gmail.com>
 
-#gcc_cmd="x86_64-pc-linux-gnu-gcc"
-gcc_cmd="${CPU}-suse-linux-gnu-gcc"
 optimize="-O2 -pipe"
-stack_protector="-fstack-protector-strong"
 
-# Optionally supply path to gcc as first argument
-if (($#)); then
-    gcc_cmd="$1"
-    shift
+if hash rpm 2>/dev/null; then
+    if hash $(rpm -E %{_host}-gcc) 2>/dev/null; then
+        gcc_cmd=$(rpm -E %{_host}-gcc);
+    else
+        gcc_cmd=$(rpm -E %__cc);
+    fi
+    optimize="$(rpm -E %optflags | sed -e 's/-fstack-[^ ]* //g' -e 's/-O[^ ]* //' -e 's/-g[^ ]* //' -e 's/-m[^ ]* //g') $optimize"
+elif hash gcc 2>/dev/null; then
+    gcc_cmd="gcc";
+else
+    echo "No GCC in your path. Is it even installed?";
+    exit 1;
 fi
-#
+
+stack_protector="-D_FORTIFY_SOURCE=2 -fPIC -fPIE -fstack-protector-strong"
+
+
 # if (($#)); then
 #    stack_protector=
 #    case $1 in
@@ -43,7 +53,7 @@ fi
 # fi
 
 with_mno=$(
-    "${gcc_cmd}" -march=native -mtune=native ${optimize} ${stack_protector} -v -E - < /dev/null 2>&1 |
+    "${gcc_cmd}" ${optimize} ${stack_protector} -march=native -mtune=native -v -E - < /dev/null 2>&1 |
     grep cc1 |
     perl -pe 's/^.* - //g;'
 )
@@ -53,13 +63,11 @@ without_mno=$(echo "${with_mno}" | perl -pe 's/ -mno-\S+//g;')
 "${gcc_cmd}" ${without_mno} -dM -E - < /dev/null > /tmp/gcctest.b.$$
 
 if diff -u /tmp/gcctest.{a,b}.$$; then
-    echo "Safe to strip -mno-* options."
+    echo "Safe to strip -mno-* options." >/dev/stderr
 else
-    echo
-    echo "WARNING! Some -mno-* options are needed!"
-    exit 1
+    echo "WARNING! Some -mno-* options are needed!" >/dev/stderr
 fi
 
 rm /tmp/gcctest.{a,b}.$$
 
-echo "${gcc_cmd}" "${without_mno}"
+echo "${gcc_cmd}: ${without_mno}"
