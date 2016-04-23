@@ -20,6 +20,13 @@ if hash colorsvn 2>/dev/null; then
 fi
 
 
+if hash wshaper.htb 2>/dev/null; then
+        function qos {
+                wshaper.htb "$*" | \
+                colout '(qdisc (?:\S+) \d+)|(root)|(parent (?:\d+:\d+))|(limit \d+)|(quantum \d+)|(class \S+ \d+:\d+)|(prio \d+)|(rate (?:\S+))|(ceil \S+)|(\bburst \S+)|(cburst \S+)|(lended: \d+)|(borrowed: \d+)|(giants: \d+)|(\btokens: \d+)|(ctokens: \d+)' Hash
+        }
+fi
+
 if hash zypper 2>/dev/null; then
 	function _repo_list {
 		arg="${1:- -pa}"
