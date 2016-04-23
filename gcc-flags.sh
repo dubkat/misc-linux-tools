@@ -5,12 +5,12 @@
 optimize="-O2 -pipe"
 
 if hash rpm 2>/dev/null; then
-    if hash $(rpm -E %{_host}-gcc) 2>/dev/null; then
-        gcc_cmd=$(rpm -E %{_host}-gcc);
+    if hash $(rpm -E %{_target_platform}%{?_gnu}-gcc) 2>/dev/null; then
+        gcc_cmd=$(rpm -E %{_target_platform}%{?_gnu}-gcc);
     else
         gcc_cmd=$(rpm -E %__cc);
     fi
-    optimize="$(rpm -E %optflags | sed -e 's/-fstack-[^ ]* //g' -e 's/-O[^ ]* //' -e 's/-g[^ ]* //' -e 's/-m[^ ]* //g') $optimize"
+    optimize="$(rpm -E %optflags | sed -e 's/-fstack-[^ ]* //g' -e 's/-O[^ ]* //g' -e 's/-g[^ ]* //' -e 's/-m[^ ]* //g') $optimize"
 elif hash gcc 2>/dev/null; then
     gcc_cmd="gcc";
 else
