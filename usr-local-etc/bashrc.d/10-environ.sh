@@ -1,6 +1,8 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
+ULE_ENV_VERSION=16.04.24
+
 #test -f /etc/portage/make.conf && . /etc/portage/make.conf
 
 : ${TZ:=UTC}

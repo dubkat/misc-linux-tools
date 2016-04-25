@@ -1,6 +1,7 @@
 # 95-aliases.sh
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
+ULE_ALIAS_VERSION=16.04.24
 
 if [ "$USER" = "root" ]; then
 	alias grouplist="column -s: -t /etc/group | sort -nk3"

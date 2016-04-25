@@ -1,5 +1,6 @@
 # 50-list.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
+ULE_LIST_VERSION=16.04.24
 
 export DIRCOLORS_THEME="${DIRCOLORS_THEME:-fruitpunch}"
 export LS_OPTIONS="--human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N"
