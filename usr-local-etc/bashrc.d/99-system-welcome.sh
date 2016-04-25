@@ -31,7 +31,7 @@ whois_server="whois.arin.net"
 external_ip_src="http://ifconfig.co"
 
 # no figlet header.
-no_fig_header="1"
+no_fig_header="0"
 
 # display this text file as header
 # useful for custom logo, etc
