@@ -8,7 +8,7 @@ if [ $UID -ne 0 ]; then
         exit 1
 fi
 
-target=$(rpm -E %_host);
+target=$(rpm -E %{_target_platform}%{?_gnu});
 bindir=$(rpm -E %_bindir);
 linkdir="/usr/local/bin"
 
