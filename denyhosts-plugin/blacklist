@@ -2,22 +2,48 @@
 # denyhosts-plugin: blacklist
 # Add blocked IP to iptables and log it's ip, host, and country of origin.
 #
-# Copyright (C) 2015 Dan Reidy <dubkat@gmail.com>
-# License: Public Domain
-# $Id$
+# Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+
 
 ip=$1
-date=$(date +'%F %H:%I:%S')
-country=$(geoiplookup $ip | grep Country)
+hostname=$(dig +short -x $ip PTR 2>/dev/null | sed 's/\.$//')
 
-if echo $country | grep -qi 'not found'; then
-	country=''
-else
-	country=$(echo $country | cut --complement -b-27);
+if [ "x${hostname}" = "x" ]; then
+    hostname="$ip"
+    ip=$(dig +short $hostname A 2>/dev/null)
+    if [ "x${ip}" = "x" ]; then
+        ip=$hostname;
+        hostname=$ip
+    fi
+fi
+
+echo "ip: $ip hostname: $hostname"
+if echo $ip | grep -Eq '^(0|10|192\.168|127).*'; then
+    echo "Error: refusing to process private IP range." >/dev/stderr
+    exit 1
 fi
 
 
-hostname=$(dig +short -x $ip)
+date=$(date +'%F_%H:%I:%S')
+country=$(geoiplookup $ip  | grep -v 'not found' | grep Country | cut --complement -b-27)
+rawasn=$(geoiplookup $ip | grep -v 'not found' | grep ASNum | cut --complement -b-21)
+asn=$(echo $rawasn | tr ' ' '\t'| cut -f1)
+isp="$(echo $rawasn | cut --complement -b-$[ ${#asn} + 1 ])"
 
-logger -p auth.notice -t blacklist "$date $ip $hostname $country"
-iptables -A blacklist -s $ip -j DROP
+[ ${#country} -gt 0 ] || country="-";
+[ ${#asn} -gt 0 ] || asn="-";
+[ ${#isp} -gt 0 ] || isp="-";
+
+echo logger -p auth.notice -t blacklist "$date, $ip, $hostname, $country, $asn, $isp"
+echo iptables -A blacklist -s $ip -j DROP
