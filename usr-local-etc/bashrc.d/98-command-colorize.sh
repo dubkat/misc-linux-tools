@@ -2,13 +2,12 @@
 # Sparkles & Poniez for all.
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
-
+ULE_COLOR_VERSION=16.04.24
 
 
 if ! hash colout 2>/dev/null; then return; fi
 
 if [ "x${COLORIZE}" != "xyes" ]; then return; fi
-export COLORIZE_VERSION="16.03.1"
 
 # a few things do it for us with no work.
 if hash colordiff 2>/dev/null; then

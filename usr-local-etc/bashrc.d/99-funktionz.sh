@@ -1,5 +1,6 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
+ULE_FUNC_VERSION=16.04.24
 
 genpasswd() {
 	local arg=$1
