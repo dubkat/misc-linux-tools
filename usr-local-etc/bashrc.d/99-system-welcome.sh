@@ -47,8 +47,9 @@ fatal=0;
 is_mac=0;
 message="";
 fig_default_opts=" -k"
-IPv4=""
-IPv6=""
+: ${IPv4:=}
+: ${IPv6:=}
+
 net4name="Unknown."
 net6name="Unknown."
 havenet=0;
@@ -177,11 +178,6 @@ if ! hash figlet >/dev/null 2>&1; then
 fi
 
 
-if ! hash whois >/dev/null 2>&1; then
-  message="Whois is not installed.:${message}"
-  fatal=$[fatal +1]
-fi
-
 if ! hash finger >/dev/null 2>&1; then
   message="Finger is not installed.:${message}"
   fatal=$[fatal +1]
@@ -235,16 +231,43 @@ else
   hostname_fqdn="`hostname -f`"
 fi
 
+: ${isp:=}
+: ${isp6:=}
+: ${asn:=}
+: ${asn6:=}
+: ${country:=}
+: ${country6:=}
+
 if [ $havenet ]; then
   debug "have a network, testing..."
   IPv4="$(curl --connect-timeout 5 -f -s -4 ${external_ip_src})"
   IPv6="$(curl --connect-timeout 5 -f -s -6 ${external_ip_src})"
 
-  if [ ! -z $IPv4 ]; then
-    net4name="`whois -h ${whois_server:-whois.arin.net} $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
+  if [ "x${IPv4}" != "x" ]; then
+	if hash geoiplookup 2>/dev/null; then
+		country=$(geoiplookup $IPv4  | grep -v 'not found' | grep Country | cut --complement -b-27)
+		rawasn=$(geoiplookup $IPv4 | grep -v 'not found' | grep ASNum | cut --complement -b-21)
+		asn=$(echo $rawasn | tr ' ' '\t'| cut -f1)
+		isp="$(echo $rawasn | cut --complement -b-$[ ${#asn} + 1 ])"
+		[ ${#country} -gt 0 ] || country="-";
+		[ ${#asn} -gt 0 ] || asn="-";
+		[ ${#isp} -gt 0 ] || isp="-";
+	elif hash whois 2>/dev/null; then
+		net4name="`whois -h ${whois_server:-whois.arin.net} $IPv4 | grep OrgName | awk -F": +" '{ print $2 }'`"
+	fi
   fi
-  if [ ! -z $IPv6 ]; then
-    net6name="`whois $IPv6 | grep OrgName | awk -F": +" '{ print $2 }'`"
+  if [ "x${IPv6}" != "x" ]; then
+        if hash geoiplookup6 2>/dev/null; then
+                country6=$(geoiplookup6 $IPv6  | grep -v 'not found' | grep Country | cut --complement -b-27)
+                rawasn6=$(geoiplookup $IPv6 | grep -v 'not found' | grep ASNum | cut --complement -b-21)
+                asn6=$(echo $rawasn6 | tr ' ' '\t'| cut -f1)
+                isp6="$(echo $rawasn6 | cut --complement -b-$[ ${#asn6} + 1 ])"
+                [ ${#country6} -gt 0 ] || country6="-";
+                [ ${#asn6} -gt 0 ] || asn6="-";
+                [ ${#isp6} -gt 0 ] || isp6="-";
+	elif hash whois 2>/dev/null; then
+		net6name="`whois $IPv6 | grep OrgName | awk -F": +" '{ print $2 }'`"
+	fi
   fi
   #echo "ipv4: $IPv4"
   #echo "net4: $net4name"
@@ -295,22 +318,29 @@ if [ $havenet ]; then
   figlet ${fig_default_opts} $center -f $sm_font My Public IP Addresses
 
   echo -en ${co_default}
-  figlet ${fig_default_opts} $center -f $sm_font -- "--------------------------"
+  figlet ${fig_default_opts} $center -f $sm_font -- "-------------------------"
   echo -en ${co_null}
 
   echo -en ${co_green}
   figlet ${fig_default_opts} $center -f $sm_font ${IPv4}
   echo -en ${co_black}
-  figlet ${fig_default_opts} $center -f $sm_font $net4name
+  if [ ${#isp} ]; then
+	figlet ${fig_default_opts} $center -f $sm_font ${isp} \[${asn}\]
+  elif [ ${#net4name} ]; then
+	figlet ${fig_default_opts} $center -f $sm_font $net4name
+  fi
   echo -en ${co_null}
   echo
 
-  if [ ! -z $IPv6 ]; then
-    debug "* have ipv6, so printing IPv6 addresss."
+  if [ "x${IPv6}" != "x" ]; then
     echo -en ${co_magenta}
     figlet ${fig_default_opts} $center -f $sm_font $IPv6
     echo -en ${co_black}
-    figlet ${fig_default_opts} $center -f $sm_font $net6name
+    if [ ${#isp6} ]; then
+	figlet ${fig_default_opts} $center -f $sm_font ${isp6} \[${asn6}\]
+    elif [ ${#net6name} ]; then   
+        figlet ${fig_default_opts} $center -f $sm_font $net6name
+    fi
     echo -en ${co_default}
   fi
 fi
