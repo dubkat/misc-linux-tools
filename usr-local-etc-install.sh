@@ -25,6 +25,7 @@ if [ -d "${CUR}/usr-local-etc" ]; then
                                                 echo >> /etc/bash.bashrc.local
                                         fi
                                 fi
+				chmod 644 ${DEST}/bashrc
                                 ;;
                         * )
                                 ;;
