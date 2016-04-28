@@ -7,8 +7,13 @@ ULE_BASE_VERSION=16.04.24
 
 if [ "x${PS1}" != "x" ] && [ "$is" = "bash" ]; then
         if [ -d /usr/local/etc/bashrc.d ]; then
-        	for sh in /usr/local/etc/bashrc.d/*.sh; do
-        		test -r ${sh} && . ${sh}
+               	for sh in /usr/local/etc/bashrc.d/*.sh; do
+                        # if it's readable and has execute bit, just run it...
+                        if [ -r ${sh} ] && [ -x ${sh} ]; then
+                                ${sh};
+                        elif [ -r ${sh} ]; then
+                                . ${sh};
+                        fi
         	done
         fi
 fi

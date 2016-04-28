@@ -22,7 +22,7 @@ if [ "$is" = "bash" ]; then
 fi
 
 export TMPDIR="/run/user/${UID}/tmp"
-export CHOST="${HOSTTYPE}-suse-linux"
+export CHOST="$(rpm -E %_target_platform 2>/dev/null)"
 export COLORIZE;
 export TZ;
 export MAN_POSIXLY_CORRECT;
