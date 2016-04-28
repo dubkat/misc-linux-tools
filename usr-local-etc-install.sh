@@ -9,6 +9,9 @@ DEST="${DEST:-/usr/local/etc}"
 echo "Installing to ${DEST}"
 test -r /etc/os-release && . /etc/os-release
 
+scripts_read="*"
+scripts_exec="99-system-welcome.sh"
+
 CUR="$(dirname $(realpath $0))"
 if [ -d "${CUR}/usr-local-etc" ]; then
         rsync -av "${CUR}/usr-local-etc/" ${DEST} && {
@@ -26,6 +29,12 @@ if [ -d "${CUR}/usr-local-etc" ]; then
                                         fi
                                 fi
 				chmod 644 ${DEST}/bashrc
+				for x in ${DEST}/bashrc.d/${scripts_read}; do
+					test -f "${x}" && chmod 644 "${x}"
+				done
+				for x in ${DEST}/bashrc.d/${scripts_exec}; do
+					test -f "${x}" && chmod 755 "${x}"
+				done
                                 ;;
                         * )
                                 ;;
