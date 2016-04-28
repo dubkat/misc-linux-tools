@@ -10,8 +10,8 @@ ULE_ENV_VERSION=16.04.24
 : ${LANG:=en_US.UTF-8}
 : ${MAN_POSIXLY_CORRECT:=1}
 : ${CFLAGS:= -march=native -O2 -D_FORTIFY_SOURCE -fPIE -fstack-protector-strong -pipe }
-: ${CXXFLAGS:= \${CFLAGS} }
-: ${FFLAGS:= \${CFLAGS} }
+: ${CXXFLAGS:= ${CFLAGS} }
+: ${FFLAGS:= ${CFLAGS} }
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
 
