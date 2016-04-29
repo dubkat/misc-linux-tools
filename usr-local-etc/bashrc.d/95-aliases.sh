@@ -17,6 +17,7 @@ if groups | grep -Eq '\b(wheel|root)\b'; then
 		alias nmap.full='sudo nmap -p1-65535 -T5 -sC -sV --version-all -O --open'
 		alias nmap.netscout='sudo nmap -sn --open'
 		alias nmap.quick='sudo nmap -T5 -sC -sV --version-all -O --open'
+		alias nmap.irc="sudo nmap -p U:23,53,123,T:194,6667,6668,6669,6670,6697,7000,7001,443,80,8080 -T5 -sC -sV --version-all --open"
 	fi
 	if hash hddtemp 2>/dev/null; then
 		alias hddtemp="hddtemp -uF"
