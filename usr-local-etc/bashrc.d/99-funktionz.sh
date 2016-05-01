@@ -1,6 +1,28 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_FUNC_VERSION=16.04.24
+ULE_FUNC_VERSION=16.04.30
+
+
+generate_path() {
+        local user="/usr/local/bin /usr/games /opt/bin /usr/bin /bin";
+        local admin="/usr/local/sbin /opt/sbin /usr/sbin /sbin";
+        #local portage="$(/usr/bin/gcc-config -B) /lib64/rc/bin";
+        local path;
+        if ! groups | /bin/grep -qE '\b(root|wheel|adm|operator)\b'; then
+                unset admin
+        fi
+        if ! groups | /bin/grep -qE '\b(portage)\b'; then
+                unset portage
+        fi
+        for x in ${HOME}/bin $portage $admin $user; do
+                [[ -d $x ]] && [[ -x $x ]] && {
+                        [[ ${#path} > 0 ]] && path+=":"
+                        path+=${x}
+                };
+        done
+        echo "export PATH=$path"
+}
+
 
 genpasswd() {
 	local arg=$1
@@ -39,6 +61,10 @@ crypt_backend ()
     	done
 }
 
+function mkxdgtmp() {
+	test -d "${TMPDIR}" || { mkdir -p "${TMPDIR}" >/dev/null; chmod 700 "${TMPDIR}" >/dev/null; }
+	mountpoint -q "${TMPDIR}" || { mount "${TMPDIR}" >/dev/null 2>&1; }
+}
 
 function vman {
  /usr/bin/man $* | col -bp | iconv -c | view -c 'set ft=man nomod nolist' -

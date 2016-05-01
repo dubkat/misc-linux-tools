@@ -1,7 +1,7 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_ENV_VERSION=16.04.24
+ULE_ENV_VERSION=16.04.30
 
 #test -f /etc/portage/make.conf && . /etc/portage/make.conf
 
@@ -9,9 +9,9 @@ ULE_ENV_VERSION=16.04.24
 : ${COLORIZE:=yes}
 : ${LANG:=en_US.UTF-8}
 : ${MAN_POSIXLY_CORRECT:=1}
-: ${CFLAGS:= -march=native -O2 -D_FORTIFY_SOURCE -fPIE -fstack-protector-strong -pipe }
-: ${CXXFLAGS:= ${CFLAGS} }
-: ${FFLAGS:= ${CFLAGS} }
+: ${CFLAGS:= -march=native -O2 -D_FORTIFY_SOURCE=2 -fPIC -fPIE -pie -fstack-protector-strong -pipe }
+: CXXFLAGS="${CFLAGS}"
+: FFLAGS="${CFLAGS}"
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
 
@@ -21,7 +21,7 @@ if [ "$is" = "bash" ]; then
         done
 fi
 
-export TMPDIR="/run/user/${UID}/tmp"
+export TMPDIR="${TMPDIR:-/run/user/${UID}/tmp}"
 export CHOST="$(rpm -E %_target_platform 2>/dev/null)"
 export COLORIZE;
 export TZ;
@@ -38,28 +38,7 @@ export PERLDOC="-MPod::Perldoc::ToTerm -o term -w indent:5 -w loose:true -w sent
 export PERL_UNICODE="6"
 export PERLDB_OPTS="NonStop=1 AutoTrace=1 frame=2"
 
-
-#export DISTCC_HOSTS="localhost azimuth,cpp,lzo"
-
-test_path() {
-	local user="/usr/local/bin /usr/games /opt/bin /usr/bin /bin";
-	local admin="/usr/local/sbin /opt/sbin /usr/sbin /sbin";
-	#local portage="$(/usr/bin/gcc-config -B) /lib64/rc/bin";
-	local path;
-	if ! groups | /bin/grep -qE '\b(root|wheel|adm|operator)\b'; then
-		unset admin
-	fi
-	if ! groups | /bin/grep -qE '\b(portage)\b'; then
-		unset portage
-	fi
-	for x in ${HOME}/bin $portage $admin $user; do
-		[[ -d $x ]] && [[ -x $x ]] && {
-			[[ ${#path} > 0 ]] && path+=":"
-			path+=${x}
-		};
-	done
-	echo "export PATH=$path"
-}
-
-eval `test_path`
+# export a simple, basic, standard path.
+# later in functions and cleanup we expand it.
+export PATH="/usr/local/bin:/usr/bin:/bin"
 
