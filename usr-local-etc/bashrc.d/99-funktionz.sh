@@ -4,8 +4,8 @@ ULE_FUNC_VERSION=16.04.30
 
 
 generate_path() {
-  local user="/usr/local/bin /usr/games /opt/bin /usr/bin /bin";
-  local admin="/usr/local/sbin /opt/sbin /usr/sbin /sbin";
+  local user="/opt/local/libexec/gnubin /opt/local/bin /usr/local/bin /usr/games /opt/bin /usr/bin /bin";
+  local admin="/usr/local/sbin /opt/local/sbin /opt/sbin /usr/sbin /sbin";
   #local portage="$(/usr/bin/gcc-config -B) /lib64/rc/bin";
   local path;
   if ! groups | /bin/grep -qE '\b(root|wheel|adm|operator)\b'; then
