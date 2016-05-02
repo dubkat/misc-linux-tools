@@ -1,7 +1,7 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_ENV_VERSION=16.04.30
+ULE_ENV_VERSION=16.05.02
 
 #test -f /etc/portage/make.conf && . /etc/portage/make.conf
 
@@ -9,7 +9,8 @@ ULE_ENV_VERSION=16.04.30
 : ${COLORIZE:=yes}
 : ${LANG:=en_US.UTF-8}
 : ${MAN_POSIXLY_CORRECT:=1}
-: ${CFLAGS:= -march=native -O2 -D_FORTIFY_SOURCE=2 -fPIC -fPIE -pie -fstack-protector-strong -pipe }
+: ${CFLAGS:= -march=native -O2 -fPIC -fPIE -pie -fstack-protector-strong -pipe }
+: ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
 : CXXFLAGS="${CFLAGS}"
 : FFLAGS="${CFLAGS}"
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
