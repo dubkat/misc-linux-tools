@@ -20,16 +20,16 @@ fi
 
 
 if hash wshaper.htb 2>/dev/null; then
-        function qos {
-                wshaper.htb "$*" | \
-                colout '(qdisc (?:\S+) \d+)|(root)|(parent (?:\d+:\d+))|(limit \d+)|(quantum \d+)|(class \S+ \d+:\d+)|(prio \d+)|(rate (?:\S+))|(ceil \S+)|(\bburst \S+)|(cburst \S+)|(lended: \d+)|(borrowed: \d+)|(giants: \d+)|(\btokens: \d+)|(ctokens: \d+)' Hash
-        }
+	function qos {
+		wshaper.htb "$*" | \
+		colout '(qdisc (?:\S+) \d+)|(root)|(parent (?:\d+:\d+))|(limit \d+)|(quantum \d+)|(class \S+ \d+:\d+)|(prio \d+)|(rate (?:\S+))|(ceil \S+)|(\bburst \S+)|(cburst \S+)|(lended: \d+)|(borrowed: \d+)|(giants: \d+)|(\btokens: \d+)|(ctokens: \d+)' Hash
+	}
 fi
 
 if hash zypper 2>/dev/null; then
 	function _repo_list {
 		arg="${1:- -pa}"
-    	sudo zypper lr $arg | colout -d Spectrum --scale 0,100 \
+		sudo zypper lr $arg | colout -d Spectrum --scale 0,100 \
 		'(^#.*$)|([─│┼])|((?:base|repo|obs|fact(?:ory)?)-[^ ]+)|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
 		white,purple,Hash,green,red,Spectrum,Scale \
 		reverse,normal,Spectrum,bold,bold,Spectrum,Scale
@@ -68,7 +68,7 @@ fi
 
 
 #function ps {
-	#command ps $* | colout '(USER|PID|%CPU|%MEM|VSZ|RSS|TT|STAT|STARTED|TIME|COMMAND)' white, underline | colout '^.*$' Random
+#command ps $* | colout '(USER|PID|%CPU|%MEM|VSZ|RSS|TT|STAT|STARTED|TIME|COMMAND)' white, underline | colout '^.*$' Random
 #	command ps $* | colout '^([ ^]+) .*' Hash Hash
 #}
 

@@ -34,11 +34,11 @@ if [ -r "/usr/local/etc/vimrc.more" ]; then
 fi
 
 if [ ! -z "$EDITOR" ]; then
-        alias suedit="sudo \$EDITOR"
+	alias suedit="sudo \$EDITOR"
 fi
 
 if [ ! -z "$GUI_EDITOR" ]; then
-        alias gsuedit="xdg-su -c \$GUI_EDITOR"
+	alias gsuedit="xdg-su -c \$GUI_EDITOR"
 fi
 
 alias tree="tree -lshACDFv --dirsfirst"
@@ -48,7 +48,7 @@ unalias dir 2>/dev/null
 unalias vdir 2>/dev/null
 
 if hash qpaeq 2>/dev/null; then
-        alias equalizer=qpaeq
+	alias equalizer=qpaeq
 fi
 
 if hash kde-open5 2>/dev/null; then
@@ -62,5 +62,3 @@ alias +="pushd ."
 alias ..="cd .."
 alias cd..="cd .."
 alias cd-="cd -"
-
-

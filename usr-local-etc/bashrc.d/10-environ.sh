@@ -17,9 +17,9 @@ ULE_ENV_VERSION=16.05.02
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
 
 if [ "$is" = "bash" ]; then
-        for x in $DEFAULT_BASH_OPTS; do
-                shopt -s $x
-        done
+  for x in $DEFAULT_BASH_OPTS; do
+    shopt -s $x
+  done
 fi
 
 export TMPDIR="${TMPDIR:-/run/user/${UID}/tmp}"
@@ -42,4 +42,3 @@ export PERLDB_OPTS="NonStop=1 AutoTrace=1 frame=2"
 # export a simple, basic, standard path.
 # later in functions and cleanup we expand it.
 export PATH="/usr/local/bin:/usr/bin:/bin"
-
