@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # free-disk-cache - Free up memory by dropping disk cache
 # Copyleft (L) 2016 Dan Reidy <dubkat+github@gmail.com>
 #

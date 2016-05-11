@@ -1,6 +1,6 @@
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
-ULE_CON_VERSION=16.05.02
+ULE_CON_VERSION=16.05.08
 case $TERM in
 	"linux" )
 	if TERM="linux-16color" tput longname >/dev/null 2>&1; then

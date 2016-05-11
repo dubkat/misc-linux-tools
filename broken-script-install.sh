@@ -1,8 +1,8 @@
 #!/bin/bash
 # Copyleft (7) 2016 Dan Reidy <dubkat@gmail.com>
-# simple installer for scripts in /usr/local/etc
+# simple installer for scripts in /usr/local/{etc,bin}
 
-DEST="${DEST:-/usr/local/etc}"
+DEST="${DEST:-/usr/local}"
 
 [ $UID -gt 0 ] && { echo "You must be root to run this script."; exit 1; }
 
@@ -12,7 +12,7 @@ case `uname -o` in
 		BASHRC="${BASHRC:-/etc/bashrc.local}"
 		ID="darwin"
 		;;
-	"Linux" )
+	"GNU/Linux" )
 		BASHRC="${BASHRC:-/etc/bash.bashrc.local}"
 		test -r /etc/os-release && . /etc/os-release
 		;;
@@ -23,12 +23,12 @@ case `uname -o` in
 		;;
 esac
 
-scripts_read="*"
-scripts_exec="99-system-welcome.sh"
+scripts_read="etc/*"
+scripts_exec="bin/*"
 
 CUR="$(dirname $(realpath $0))"
-if [ -d "${CUR}/usr-local-etc" ]; then
-        rsync -av "${CUR}/usr-local-etc/" ${DEST} && {
+if [ -d "${CUR}/usr-local" ]; then
+        rsync -av "${CUR}/usr-local/etc/" ${DEST} && {
 	        if [ ! -f "${BASHRC}" ]; then
              	   ln -sf ${DEST}/bashrc ${BASHRC}
                 else

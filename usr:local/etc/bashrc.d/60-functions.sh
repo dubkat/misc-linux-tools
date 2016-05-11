@@ -1,6 +1,6 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_FUNC_VERSION=16.04.30
+ULE_FUNC_VERSION=16.05.08
 
 
 generate_path() {
@@ -30,7 +30,7 @@ genpasswd() {
   if hash random.sh 2>/dev/null; then
     random.sh $arg
   else
-    echo "please download random.sh from github"
+    echo "please download random.sh from https://github.com/dubkat/misc-linux-tools" >&2
   fi
 }
 
@@ -61,7 +61,9 @@ crypt_backend ()
   done
 }
 
+# create user designated tmpdir location, if it doesn't exist.
 function mkxdgtmp() {
+  [ -z "${TMPDIR}" ] && return 0;
   test -d "${TMPDIR}" || { mkdir -p "${TMPDIR}" >/dev/null; chmod 700 "${TMPDIR}" >/dev/null; }
   mountpoint -q "${TMPDIR}" || { mount "${TMPDIR}" >/dev/null 2>&1; }
 }

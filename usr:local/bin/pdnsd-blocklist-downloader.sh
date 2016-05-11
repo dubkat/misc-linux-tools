@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# Copyright (C) 2013-2016 Dan Reidy <dubkat@gmail.com>
+# download a blocklist for pdnsd, load it, and go.
+# License: GPLv2
 
 REMOTE_LIST="http://pgl.yoyo.org/adservers/serverlist.php?hostformat=pdnsd&showintro=1&startdate%5Bday%5D=&startdate%5Bmonth%5D=&startdate%5Byear%5D=&mimetype=plaintext"
 
@@ -17,5 +20,3 @@ if [ $PDNSD_RELOAD ]; then
 	pdnsd-ctl config
 fi
 
-:close
-:close-tab
