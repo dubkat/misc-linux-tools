@@ -198,7 +198,7 @@ LICENSE
 }
 
 sub curl_publicip {
-    my $publicIp = qx[ curl --connect-timeout 1 -fs ip.appspot.com ];
+    my $publicIp = qx[ curl --connect-timeout 1 -fs http://ifconfig.co ];
     $publicIp ||= "<unknown>";
     chomp $publicIp;
     return $publicIp;

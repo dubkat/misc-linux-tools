@@ -1,10 +1,11 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_ENV_VERSION=16.05.02
+ULE_ENV_VERSION=16.05.08
 
 #test -f /etc/portage/make.conf && . /etc/portage/make.conf
 
+: ${TMPDIR:=
 : ${TZ:=UTC}
 : ${COLORIZE:=yes}
 : ${LANG:=en_US.UTF-8}
