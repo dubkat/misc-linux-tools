@@ -222,10 +222,6 @@ _activate_color
 _have_network
 
 # the following file is on systemd powered systems
-if [ -e "/etc/machine-info" ]; then
-  . /etc/machine-info 2>/dev/null
-fi
-
 if [ -e "/etc/os-release" ]; then
   . /etc/os-release 2>/dev/null
   . /etc/machine-info 2>/dev/null
