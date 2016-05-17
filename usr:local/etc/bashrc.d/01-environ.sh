@@ -5,15 +5,14 @@ ULE_ENV_VERSION=16.05.08
 
 #test -f /etc/portage/make.conf && . /etc/portage/make.conf
 
-: ${TMPDIR:=
+: ${TMPDIR:=/tmp}
 : ${TZ:=UTC}
 : ${COLORIZE:=yes}
 : ${LANG:=en_US.UTF-8}
 : ${MAN_POSIXLY_CORRECT:=1}
-: ${CFLAGS:= -march=native -O2 -fPIC -fPIE -pie -fstack-protector-strong -pipe }
+: ${POSIXLY_CORRECT:=1}
+: ${CFLAGS:= -march=native -O2 -fPIE -fstack-protector-strong -pipe }
 : ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
-: CXXFLAGS="${CFLAGS}"
-: FFLAGS="${CFLAGS}"
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
 
@@ -23,13 +22,14 @@ if [ "$is" = "bash" ]; then
   done
 fi
 
-export TMPDIR="${TMPDIR:-/run/user/${UID}/tmp}"
-export CHOST="$(rpm -E %_target_platform 2>/dev/null)"
+export TMPDIR;
+export CHOST="${MACHTYPE:=`uname -p`-unknown-linux}"
 export COLORIZE;
 export TZ;
 export MAN_POSIXLY_CORRECT;
 export CFLAGS;
-export CXXFLAGS;
+export CXXFLAGS=\${CFLAGS}
+export FFLAGS=\${CFLAGS}
 export LDFLAGS;
 
 # change grep's default color
