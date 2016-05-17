@@ -48,19 +48,29 @@ function df {
 
 if hash di 2>/dev/null; then
 	function di {
-		local mnt_opts=
-		if [ x"$1" == x"--mntopts" ]; then
-			mnt_opts="O"
-			shift
+		local opts=" -ssm -dh "
+		local otypes="iso8859,udf,devtmpfs,sysfs,securityfs,proc,mqueue,devpts,debugfs,hugetlbfs,pstore,rpc_pipefs,cgroup,binfmt_misc"
+		local types="ext4,ext3,ext2,btrfs,xfs,reiserfs,ntfs,vfat,exfat,hfs,fuse.sshfs,fuse.unionfs,nfs"
+		local DI_ARGS="${DI_ARGS} ${opts}"
+		if [ ${#@} -gt 0 ]; then
+			if [ "$1" = "full" ]; then
+				DI_ARGS+=" --all"
+				shift
+			elif [ "$1" = "short" ]; then
+				DI_ARGS+=" -I$(awk '/^[[:space:]]+[[:alpha:]]+/ { print $NF }' /proc/filesystems | tr '\n' ',')"
+				shift
+			fi
+
+		else
+			DI_ARGS+=" -I${types} -srs"
 		fi
-		local DI_ARGS="${DI_ARGS}${mnt_opts} $@"
-		command di ${DI_ARGS}  | \
+		command di ${DI_ARGS} $@ | \
 		colout --scale 0,100 \
 		'^([^ ]+)\s+(/?[^ ]*)\s+([0-9\.]+[GMTK]?)\s+([0-9\.]+[GMTK]?)\s+([0-9\.]+[GMTK]?)\s+(\d+%)\s+([^ ]+)(?:\s+([^ ]+)?)' \
 		Hash,201,yellow,red,green,scale,Hash,white \
 		Hash,bold,normal,normal,normal,bold,Hash,italic | \
 		\
-		colout 'Filesystem.*|Mount|Size|Used|Free|%Used|fs Type|Options.*' \
+		colout '^(Filesystem.*|[ ]*Total[ ].*)' \
 		222 \
 		reverse
 	}
