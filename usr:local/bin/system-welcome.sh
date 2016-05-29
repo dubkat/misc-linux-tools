@@ -116,8 +116,11 @@ function debug ()
 function _have_network ()
 {
   local ret=-1
-  if hash nm-online 2>/dev/null; then
-    nm-online
+  if hash curl 2>/dev/null; then
+    # i use this this google url, because google is uber stable, and we can be reasonably
+    # sure that the site is up, running, and connectable.
+    curl -f -s -6 --connect-timeout ${curl_timeout:-5} https://www.google.com/generate_204 || \
+    curl -f -s -4 --connect-timeout ${curl_timeout:-5} https://www.google.com/generate_204
   elif hash ip || [ [ -x /usr/sbin/ip ] && hash -p /usr/sbin/ip ip ]; then
     ip route show | grep -q default
   fi
