@@ -1,0 +1,13 @@
+[Unit]
+Description=Glances System Info Server
+Requires=var-run.mount network-online.target
+
+[Service]
+PIDFile=/var/run/glances.pid
+ExecStart=/usr/bin/glances -s
+ExecStop=/usr/bin/kill -TERM $MAINPID
+ExecReload=/usr/bin/kill -HUP $MAINPID
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target
