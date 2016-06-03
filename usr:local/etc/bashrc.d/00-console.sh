@@ -16,11 +16,13 @@ case $TERM in
                 tput init
 	fi
 	;;
+
         "rxvt-unicode-256color" )
         if [ "`uname -o`" = "Darwin" ]; then
                 if ! tput longname >/dev/null 1>&1; then
-                export TERM="rxvt-256color"
-                tput init
+                        export TERM="rxvt-256color"
+                        tput init
+                fi
         fi
         ;;
 esac

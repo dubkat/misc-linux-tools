@@ -27,11 +27,12 @@ if hash wshaper.htb 2>/dev/null; then
 fi
 
 if hash nmap 2>/dev/null; then
-	function nmap.netscan {
+	function nmap_netscout {
 		: ${1?required argument: network block, such as 192.168.1.0/24}
 		sudo nmap -sn --open "$@" | colout 'scan report for ([^ ]+)|\(([^\)]+)\)|([A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2})|Host is (up)|(Unknown)' \
 		Hash,white,153,182,196 bold,normal,normal,normal,normal
 	}
+        alias nmap.netscout="nmap_netscout"
 fi
 
 
