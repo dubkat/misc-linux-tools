@@ -3,17 +3,16 @@
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 # http://github.com/dubkat/misc-linux-tools/usr-local-etc
 
-ULE_BASE_VERSION=16.04.24
+declare -A ULE_VERSION
+declare -r ULE_MODULES="base console environ functions setup colorize aliases"
+ULE_VERSION['base']=16.06.04
 
-if [ "x${PS1}" != "x" ] && [ "$is" = "bash" ]; then
+if [ ! -z "${TERM}" ] && [ "$is" = "bash" ]; then
         if [ -d /usr/local/etc/bashrc.d ]; then
                	for sh in /usr/local/etc/bashrc.d/*.sh; do
-                        # if it's readable and has execute bit, just run it...
                         if [ -r ${sh} ]; then
                                 . ${sh};
                         fi
         	done
         fi
 fi
-
-#umask 027

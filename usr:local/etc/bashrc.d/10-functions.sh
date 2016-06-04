@@ -1,7 +1,28 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_FUNC_VERSION=16.05.08
+ULE_VERSION['functions']=16.06.04
 
+function _ls ()
+{
+    local IFS=' ';
+    command ls $LS_OPTIONS ${1+"$@"}
+}
+
+ule_version() {
+cat<<EOF
+Copyright 2015-$(date +%Y) Dan Reidy <dubkat@gmail.com>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+usr:local module versions:
+EOF
+        for x in $ULE_MODULES; do
+                printf "%12s: %s\n" $x ${ULE_VERSION[$x]}
+        done
+
+}
 
 generate_path() {
   local user="/opt/local/libexec/gnubin /opt/local/bin /usr/local/bin /usr/games /opt/bin /usr/bin /bin";
@@ -20,7 +41,7 @@ generate_path() {
       path+=${x}
     };
   done
-  echo "export PATH=$path"
+  echo export PATH=$path
 }
 
 
@@ -62,10 +83,17 @@ crypt_backend ()
 }
 
 # create user designated tmpdir location, if it doesn't exist.
-function mkxdgtmp() {
-  [ -z "${TMPDIR}" ] && return 0;
-  test -d "${TMPDIR}" || { mkdir -p "${TMPDIR}" >/dev/null; chmod 700 "${TMPDIR}" >/dev/null; }
-  mountpoint -q "${TMPDIR}" || { mount "${TMPDIR}" >/dev/null 2>&1; }
+function make_user_tmpdir() {
+  [ $UID -eq 0 ] && return 0;
+  local uuid;
+  if hash uuid 2>/dev/null; then
+        uuid=$(uuid -v1);
+  else
+        uuid="$(random.sh 192 2>/dev/null)"
+ fi
+ mkdir -p "/tmp/${uuid}"
+ chmod 700 "/tmp/${uuid}"
+ echo export TMPDIR="/tmp/${uuid}"
 }
 
 function vman {
