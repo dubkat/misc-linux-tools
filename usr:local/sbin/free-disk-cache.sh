@@ -79,9 +79,11 @@ if ! hash bc 2>/dev/null; then
   exit 1
 fi
 
-if ! hash sudo 2>/dev/null; then
-  echo "${red}* ${wht}sudo${gry} not found.${rst}" > /dev/stderr
-  exit 1
+if [ $UID -gt 0 ]; then
+        if ! hash sudo 2>/dev/null; then
+          echo "${red}* ${wht}sudo${gry} not found.${rst}" > /dev/stderr
+          exit 1
+        fi
 fi
 
 status_only=1

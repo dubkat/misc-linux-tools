@@ -1,4 +1,4 @@
-#!/usr/bin/env perl
+#!/usr/bin/perl
 
 #^^^ This should point to your system's perl, or which ever
 #    custom perl you may have installed. Usually /usr/bin/perl

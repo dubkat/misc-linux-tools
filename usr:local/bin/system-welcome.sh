@@ -146,11 +146,11 @@ function _is_admin ()
   for group in `groups`; do
     if [ "$group" = "admin" ] || [ "$group" = "wheel" ]; then
       echo -n "Y"
-      return
+      return 1
     fi
   done
   echo -n "N"
-  return
+  return 0
 }
 
 function _activate_color ()

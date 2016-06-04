@@ -3,13 +3,19 @@
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 # http://github.com/dubkat/misc-linux-tools/usr-local-etc
 
-declare -A ULE_VERSION
-declare -r ULE_MODULES="base console environ functions setup colorize aliases"
+declare -A ULE_VERSION;
 ULE_VERSION['base']=16.06.04
 
+declare -r ULE_MODULES="base console environ functions setup colorize aliases"
+
+declare -A ULE_SETTING;
+ULE_SETTING['ETC_DIR']="%env_prefix%"
+ULE_SETTING['BIN_DIR']="%bin_prefix%"
+ULE_SETTING['SBIN_DIR']="%sbin_prefix%"
+
 if [ ! -z "${TERM}" ] && [ "$is" = "bash" ]; then
-        if [ -d /usr/local/etc/bashrc.d ]; then
-               	for sh in /usr/local/etc/bashrc.d/*.sh; do
+        if [ -d ${ULE_SETTING['ETC_DIR']}/bashrc.d ]; then
+               	for sh in ${ULE_SETTING['ETC_DIR']}/bashrc.d/*.sh; do
                         if [ -r ${sh} ]; then
                                 . ${sh};
                         fi

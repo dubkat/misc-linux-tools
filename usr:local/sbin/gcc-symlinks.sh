@@ -3,18 +3,19 @@
 # create symlinks to gcc/binutils based on local chost (eg. x86_64-suse-linux-gnu-gcc)
 # requires: RPM
 
+cmd="ln"
 if [ $UID -ne 0 ]; then
         echo "You must be $(getent -i passwd 0 | awk -F: '{ print $1 }') to run this script."
-        exit 1
+        cmd="echo ln"
 fi
 
 target=$(rpm -E %{_target_platform}%{?_gnu});
 bindir=$(rpm -E %_bindir);
-linkdir="/usr/local/bin"
+linkdir="/usr/local/libexec"
 
 package_list=
-for package in $(rpm -qa 'gcc|cpp|binutils|binutils-gold'); do 
-        package_list+="$(rpm -ql $package | grep ${bindir} | xargs) "
+for package in gcc gcc-c++ gcc-fortran gcc5 gcc5-c++ gcc5-fortran gcc6 gcc6-c++ gcc6-fortran cpp binutils binutils-gold make; do 
+        package_list+="$(rpm -ql $package 2>/dev/null | grep ${bindir} | xargs) "
 done
 
 for package in $package_list; do
@@ -24,7 +25,8 @@ for package in $package_list; do
         fi
         name=$(basename $package)
         dest="${linkdir}/${target}-${name}"
-        echo "Linking ${package} to ${dest}"
-        ln -sf ${package} ${dest}
+        #echo "Linking ${package} to ${dest}"
+        ${cmd} -sf ${package} ${dest}
 done
 
+echo "export PATH=${linkdir}:$PATH"

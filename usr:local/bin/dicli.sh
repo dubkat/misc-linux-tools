@@ -1,20 +1,30 @@
 #!/bin/bash
 #
-# dicli.sh - Listen to Digitally Imported FM without the premium membership
-# Copyleft (C) 2016 Dan Reidy <dubkat@gmail.com>
+#  dicli.sh - Stream Digitally Imported FM without the premium membership
+#  Copyleft (C) 2016 Dan Reidy <dubkat@gmail.com>
 #
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 
+DICLI_VERSION=16.06.0
 
 function header() {
-echo "$(tput setaf 81)"
 cat<<HEAD
-	$(tput setaf 111)╺┳┓╻┏━╸╻╺┳╸┏━┓╻  ╻  ╻ ╻$(tput setaf 255)╻┏┳┓┏━┓┏━┓┏━┓╺┳╸┏━╸╺┳┓
-	$(tput setaf 111) ┃┃┃┃╺┓┃ ┃ ┣━┫┃  ┃  ┗┳┛$(tput setaf 255)┃┃┃┃┣━┛┃ ┃┣┳┛ ┃ ┣╸  ┃┃
-	$(tput setaf 111)╺┻┛╹┗━┛╹ ╹ ╹ ╹┗━╸┗━╸ ╹ $(tput setaf 255)╹╹ ╹╹  ┗━┛╹┗╸ ╹ ┗━╸╺┻┛
+
+        $(tput setaf 111)╺┳┓╻┏━╸╻╺┳╸┏━┓╻  ╻  ╻ ╻$(tput setaf 255)╻┏┳┓┏━┓┏━┓┏━┓╺┳╸┏━╸╺┳┓
+        $(tput setaf 111) ┃┃┃┃╺┓┃ ┃ ┣━┫┃  ┃  ┗┳┛$(tput setaf 255)┃┃┃┃┣━┛┃ ┃┣┳┛ ┃ ┣╸  ┃┃
+        $(tput setaf 111)╺┻┛╹┗━┛╹ ╹ ╹ ╹┗━╸┗━╸ ╹ $(tput setaf 255)╹╹ ╹╹  ┗━┛╹┗╸ ╹ ┗━╸╺┻┛
 HEAD
 echo "$(tput sgr0)"
 }
@@ -49,6 +59,22 @@ station[20]="Dark PsyTrance";				staturl[20]="di_darkpsytrance_aac";
 station[21]="Deep House";						staturl[21]="di_deephouse_aac";
 
 
+function do_version {
+        header;
+        cat<<EOF
+                       $(tput bold)$(tput setaf 111)$(basename $0)$(tput sgr0) v$(tput bold)${DICLI_VERSION}$(tput sgr0)
+       $(tput bold)Copyright (C) 2016 Dan Reidy <dubkat@gmail.com>$(tput sgr0)
+
+$(tput setaf 111)*$(tput sgr0) This program is distributed in the hope that it will be useful,
+$(tput setaf 111)*$(tput sgr0) but WITHOUT ANY WARRANTY; without even the implied warranty of
+$(tput setaf 111)*$(tput sgr0) MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+$(tput setaf 111)*$(tput sgr0) GNU General Public License for more details.
+EOF
+}
+
+function do_short {
+        echo $DICLI_VERSION
+}
 
 function print_usage {
 	self=$(basename $0);
@@ -65,6 +91,7 @@ function list_stations {
 	local bold=$(tput bold)
 	local rest=$(tput sgr0)
 	local orng=$(tput setaf 178);
+        header;
 	printf -v fmt "  %s%s%%-5s  %s%%s\n" $orng $bold $rest
 	printf "$fmt" "Id" "Name";
 	while [ 1 ]; do
@@ -105,6 +132,10 @@ function play_station {
 case $1 in
 	list ) list_stations; ;;
 	play ) shift; play_station $1; ;;
+
+        version ) do_version; ;;
+
+        shortver ) do_short; ;;
 
 	* ) print_usage; exit 1; ;;
 esac

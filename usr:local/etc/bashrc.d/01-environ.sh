@@ -9,7 +9,7 @@ ULE_VERSION['environ']=16.06.04
 : ${LANGUAGE:=en_US}
 : ${MAN_POSIXLY_CORRECT:=1}
 : ${POSIXLY_CORRECT:=0}
-: ${CFLAGS:= -march=native -O2 -fPIE -fstack-protector-strong -pipe }
+: ${CFLAGS:= $(ULE_SETTING['BIN_DIR']}/gcc-flags.sh }
 : ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
@@ -33,6 +33,7 @@ export POSIXLY_CORRECT;
 export CFLAGS;
 export CXXFLAGS=\${CFLAGS}
 export FFLAGS=\${CFLAGS}
+export CPPFLAGS;
 export LDFLAGS;
 export DIRCOLORS_THEME;
 export LS_OPTIONS;
