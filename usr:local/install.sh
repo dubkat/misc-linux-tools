@@ -23,8 +23,8 @@ if hash tput 2>/dev/null; then
 
         case $(tput colors) in
                 256 )
-                        yel=$(tput setaf 190);
-                        gre=$(tput setaf 118);
+                        yel=$(tput setaf 178);
+                        gre=$(tput setaf  82);
                         red=$(tput setaf 203);
                         blu=$(tput setaf  86);
                         pur=$(tput setaf 140);
@@ -122,7 +122,7 @@ sed -i \
 echo
 echo "* Install Complete."
 echo "* Dont forget to add '${yel}test -r ${env_prefix}/bashrc && source ${env_prefix}/bashrc${rst}' to /etc/bashrc.local"
-echo "*or your system's equivelent. You could also add it to your ~/.bashrc"
+echo "* or your system's equivelent. You could also add it to your ~/.bashrc"
 echo
 echo "${bld}Script Locations:${rst}"
 echo "* ${bld}Root / Wheel / Admin${rst}: ${red}$sbin_prefix${rst}"

@@ -24,6 +24,18 @@ EOF
 
 }
 
+ule_uname() {
+        if [ ! -z "$@" ]; then
+                command uname $@
+                return $?
+        fi
+        local opts="nodename machine processor hardware-platform operating-system kernel-name kernel-release kernel-version";
+        for x in $opts; do
+                printf "* %20s: %s\n" "${x}" "$(uname --${x})";
+        done
+}
+
+
 generate_path() {
   local user="/opt/local/libexec/gnubin /opt/local/bin /usr/local/bin /usr/games /opt/bin /usr/bin /bin";
   local admin="/usr/local/sbin /opt/local/sbin /opt/sbin /usr/sbin /sbin";

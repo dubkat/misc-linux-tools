@@ -9,7 +9,7 @@ ULE_VERSION['environ']=16.06.04
 : ${LANGUAGE:=en_US}
 : ${MAN_POSIXLY_CORRECT:=1}
 : ${POSIXLY_CORRECT:=0}
-: ${CFLAGS:= $(ULE_SETTING['BIN_DIR']}/gcc-flags.sh }
+: ${CFLAGS:= $(${ULE_SETTING['BIN_DIR']}/gcc-flags.sh) }
 : ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
@@ -22,7 +22,7 @@ if [ "$is" = "bash" ]; then
   done
 fi
 
-export CHOST="${MACHTYPE:=`uname -p`-unknown-linux}"
+export CHOST="${MACHTYPE:=`uname -p`-unknown-linux}-gnu"
 export COLORIZE;
 export TZ;
 export LANG;

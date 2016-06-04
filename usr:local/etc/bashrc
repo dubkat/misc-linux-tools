@@ -4,9 +4,11 @@
 # http://github.com/dubkat/misc-linux-tools/usr-local-etc
 
 declare -A ULE_VERSION;
-ULE_VERSION['base']=16.06.04
+ULE_VERSION['base']=16.06.5
 
-declare -r ULE_MODULES="base console environ functions setup colorize aliases"
+if [ -z "$ULE_MODULES" ]; then
+        declare -r ULE_MODULES="base console environ functions setup colorize aliases"
+fi
 
 declare -A ULE_SETTING;
 ULE_SETTING['ETC_DIR']="%env_prefix%"

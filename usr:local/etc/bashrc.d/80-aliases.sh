@@ -61,6 +61,7 @@ alias ls="_ls"
 alias ll="ls -l --human --dereference --classify"
 alias l="ls -lA --human --classify"
 
+alias uname="ule_uname"
 
 alias +="pushd ."
 alias ..="cd .."
