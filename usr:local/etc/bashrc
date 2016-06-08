@@ -4,16 +4,23 @@
 # http://github.com/dubkat/misc-linux-tools/usr-local-etc
 
 declare -A ULE_VERSION;
-ULE_VERSION['base']=16.06.5
+ULE_VERSION['base']=16.06.8
+
+if [ ! -z "$ULE_RUNTIME" ]; then
+	# prevent source looping
+	return
+fi
+export ULE_RUNTIME=1
 
 if [ -z "$ULE_MODULES" ]; then
-        declare -r ULE_MODULES="base console environ functions setup colorize aliases"
+        declare -r ULE_MODULES="base start environ functions setup colorize aliases"
 fi
 
 declare -A ULE_SETTING;
 ULE_SETTING['ETC_DIR']="%env_prefix%"
 ULE_SETTING['BIN_DIR']="%bin_prefix%"
 ULE_SETTING['SBIN_DIR']="%sbin_prefix%"
+
 
 if [ ! -z "${TERM}" ] && [ "$is" = "bash" ]; then
         if [ -d ${ULE_SETTING['ETC_DIR']}/bashrc.d ]; then
@@ -24,3 +31,5 @@ if [ ! -z "${TERM}" ] && [ "$is" = "bash" ]; then
         	done
         fi
 fi
+
+unset ULE_RUNTIME

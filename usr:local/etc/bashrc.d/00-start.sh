@@ -1,6 +1,11 @@
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
-ULE_VERSION['console']=16.06.04
+ULE_VERSION['start']=16.06.8
+
+unset LS_COLORS
+unset LS_OPTIONS
+
+test -r ~/.bashrc && source ~/.bashrc
 
 case $TERM in
 	"linux" )
@@ -27,5 +32,6 @@ case $TERM in
         fi
         ;;
 esac
+
 
 
