@@ -1,6 +1,6 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_VERSION['functions']=16.06.04
+ULE_VERSION['functions']=16.06.9
 
 function _ls ()
 {
@@ -60,7 +60,8 @@ unique_host_color() {
 	if ! hash colout 2>/dev/null; then
 		return
 	fi
-	local escape="$(echo $HOSTNAME | colout '^.*$' Hash | cat -v | grep -Po '1;38;5;\d+')"
+	local hostname="$(hostname -f)"
+	local escape="$(echo $hostname | colout '^.*$' Hash | cat -v | grep -Po '1;38;5;\d+')"
 	echo -n "$escape"
 }
 
