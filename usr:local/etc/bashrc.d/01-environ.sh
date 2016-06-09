@@ -9,12 +9,11 @@ ULE_VERSION['environ']=16.06.04
 : ${LANGUAGE:=en_US}
 : ${MAN_POSIXLY_CORRECT:=1}
 : ${POSIXLY_CORRECT:=0}
-: ${CFLAGS:= $(${ULE_SETTING['BIN_DIR']}/gcc-flags.sh) }
-: ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
-: ${DIRCOLORS_THEME:-fruitpunch}
-: ${LS_OPTIONS:- --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
+: ${DIRCOLORS_THEME:=fruitpunch}
+: ${LS_OPTIONS:= --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
+: ${MACHTYPE:=`gcc -dumpmachine`}
 
 if [ "$is" = "bash" ]; then
   for x in $DEFAULT_BASH_OPTS; do
@@ -22,7 +21,7 @@ if [ "$is" = "bash" ]; then
   done
 fi
 
-export CHOST="${MACHTYPE:=`uname -p`-unknown-linux}-gnu"
+export CHOST="${MACHTYPE}-gnu"
 export COLORIZE;
 export TZ;
 export LANG;
@@ -30,10 +29,6 @@ export LANGUAGE;
 export LC_ALL=${LANG}
 export MAN_POSIXLY_CORRECT;
 export POSIXLY_CORRECT;
-export CFLAGS;
-export CXXFLAGS=\${CFLAGS}
-export FFLAGS=\${CFLAGS}
-export CPPFLAGS;
 export LDFLAGS;
 export DIRCOLORS_THEME;
 export LS_OPTIONS;
