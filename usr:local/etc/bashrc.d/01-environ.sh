@@ -43,7 +43,9 @@ export PERLDB_OPTS="NonStop=1 AutoTrace=1 frame=2"
 
 # export a simple, basic, standard path.
 # later in functions and cleanup we expand it.
-export PATH="/usr/local/bin:/usr/bin:/bin"
+export PATH="${ULE_SETTING['BIN_DIR']}:/usr/bin:/bin"
+
+eval `gcc-flags.sh`
 
 unalias ls 2>/dev/null ||:
 
