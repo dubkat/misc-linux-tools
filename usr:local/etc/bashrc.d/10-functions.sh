@@ -56,6 +56,21 @@ generate_path() {
   echo export PATH=$path
 }
 
+unique_host_color() {
+	if ! hash colout 2>/dev/null; then
+		return
+	fi
+	local escape="$(echo $HOSTNAME | colout '^.*$' Hash | cat -v | grep -Po '1;38;5;\d+')"
+	echo -n "$escape"
+}
+
+unique_user_color() {
+	if ! hash colout 2>/dev/null; then
+		return
+	fi
+	local escape="$(echo $USER | colout '^.*$' Hash | cat -v | grep -Po '1;38;5;\d+')"
+	echo -n "$escape"
+}
 
 genpasswd() {
   local arg=$1
