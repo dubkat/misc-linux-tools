@@ -1,7 +1,7 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_VERSION['environ']=16.06.04
+ULE_VERSION['environ']=16.06.8
 
 : ${TZ:=UTC}
 : ${COLORIZE:=yes}
@@ -11,7 +11,7 @@ ULE_VERSION['environ']=16.06.04
 : ${POSIXLY_CORRECT:=0}
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
-: ${DIRCOLORS_THEME:=fruitpunch}
+: ${DIRCOLORS_THEME:=fruitpunch-256}
 : ${LS_OPTIONS:= --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
 : ${MACHTYPE:=`gcc -dumpmachine`}
 
