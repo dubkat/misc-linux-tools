@@ -66,7 +66,7 @@ generate_flags() {
 	echo "export CC='$gcc_cmd'"
 	echo "export CPPFLAGS='$gcc_fortify'"
 	
-	if diff -u /tmp/gcctest.{a,b}.$$; then
+	if diff -u /tmp/gcctest.{a,b}.$$ >/dev/null 2>&1; then
 	    echo "export CFLAGS='${without_mno} -pipe'"
 	else
 	    echo "export CFLAGS='${with_mno} -pipe'"
