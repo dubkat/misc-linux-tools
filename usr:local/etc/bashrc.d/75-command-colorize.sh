@@ -2,7 +2,7 @@
 # Sparkles & Poniez for all.
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
-ULE_VERSION['colorize']=16.06.04
+ULE_VERSION['colorize']=16.07.01
 
 if ! hash colout 2>/dev/null; then return; fi
 
@@ -38,8 +38,8 @@ fi
 if hash zypper 2>/dev/null; then
 	function _repo_list {
 		arg="${1:- -pa}"
-		sudo zypper lr $arg | colout -d Spectrum --scale 0,100 \
-		'(^#.*$)|([─│┼])|((?:base|repo|obs|fact(?:ory)?)-[^ ]+)|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
+		sudo zypper --table-style 2 lr $arg | colout -d Spectrum --scale 0,100 \
+		'(^#.*$)|([─│┼])|((?:base|alpha|repo|devel|home|obs|[xyz]|google|fact(?:ory)?)-[^ ]+)|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
 		white,purple,Hash,green,red,Spectrum,Scale \
 		reverse,normal,Spectrum,bold,bold,Spectrum,Scale
 	}

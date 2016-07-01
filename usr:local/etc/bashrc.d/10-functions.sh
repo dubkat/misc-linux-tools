@@ -116,12 +116,14 @@ function make_user_tmpdir() {
   local uuid;
   if hash uuid 2>/dev/null; then
         uuid=$(uuid -v1);
+  elif hash uuidgen 2>/dev/null; then
+	uuid=$(uuidgen -t);
   else
-        uuid="$(random.sh 192 2>/dev/null)"
- fi
- mkdir -p "/tmp/${uuid}"
- chmod 700 "/tmp/${uuid}"
- echo export TMPDIR="/tmp/${uuid}"
+        uuid="$(random.sh 192 2>/dev/null | tr '/' '+')"
+  fi
+  mkdir -p "/tmp/${uuid}"
+  chmod 700 "/tmp/${uuid}"
+  echo export TMPDIR="/tmp/${uuid}"
 }
 
 function vman {

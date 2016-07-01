@@ -1,14 +1,18 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_VERSION['environ']=16.06.8
+ULE_VERSION['environ']=16.07.01
 
 : ${TZ:=UTC}
 : ${COLORIZE:=yes}
 : ${LANG:=en_US.UTF-8}
-: ${LANGUAGE:=en_US}
+: ${LANGUAGE:=en}
 : ${MAN_POSIXLY_CORRECT:=1}
 : ${POSIXLY_CORRECT:=0}
+: ${CFLAGS:= -march=native -O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -pipe }
+: ${CXXFLAGS:=$CFLAGS}
+: ${FFLAGS:=$CFLAGS}
+: ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
 : ${DIRCOLORS_THEME:=fruitpunch-256}
@@ -45,7 +49,6 @@ export PERLDB_OPTS="NonStop=1 AutoTrace=1 frame=2"
 # later in functions and cleanup we expand it.
 export PATH="${ULE_SETTING['BIN_DIR']}:/usr/bin:/bin"
 
-eval `gcc-flags.sh`
+
 
 unalias ls 2>/dev/null ||:
-
