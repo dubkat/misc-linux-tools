@@ -13,9 +13,11 @@ fi
 
 if [ $UID -gt 0 ]; then
         eval `make_user_tmpdir`
-        eval `generate_path`
         #eval `gcc-flags.sh`
 fi
+
+eval `generate_path`
+
 
 if [ ! -n $DONT_TOUCH_MY_PROMPT ]; then
   export PS1="\[\033[$(unique_user_color)m\]\u\[\033[00;38;5;155;01m\]@\[\033[$(unique_host_color)m\]\h\[\033[00;38;5;195m\] \w\n\[\033[00;38;5;155;01m\]$\[\033[00m\] "
