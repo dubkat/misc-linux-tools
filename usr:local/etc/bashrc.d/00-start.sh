@@ -1,6 +1,7 @@
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 ULE_VERSION['start']=16.07.02
+export ULE_RUNTIME=2
 
 unset LS_COLORS
 unset LS_OPTIONS

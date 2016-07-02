@@ -1,6 +1,7 @@
 # 20-setup.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 ULE_VERSION['setup']=16.07.02
+export ULE_RUNTIME=5
 
 if [ ! -z "$TERM" ]; then
   if [[ $(tput colors) -ge 88 ]]; then

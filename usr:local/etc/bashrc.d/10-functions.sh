@@ -1,6 +1,7 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_VERSION['functions']=16.06.9
+ULE_VERSION['functions']=16.07.01
+export ULE_RUNTIME=4
 
 function _ls ()
 {
