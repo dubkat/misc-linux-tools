@@ -2,7 +2,7 @@
 # Sparkles & Poniez for all.
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
-ULE_VERSION['colorize']=16.07.01
+ULE_VERSION['colorize']=16.07.02
 
 if ! hash colout 2>/dev/null; then return; fi
 

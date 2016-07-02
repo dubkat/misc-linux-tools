@@ -1,7 +1,7 @@
 # 95-aliases.sh
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
-ULE_VERSION['aliases']=16.06.04
+ULE_VERSION['aliases']=16.07.02
 export ULE_RUNTIME=6
 
 if [ "$USER" = "root" ]; then
