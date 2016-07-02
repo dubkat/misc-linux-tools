@@ -1,9 +1,21 @@
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
-ULE_VERSION['start']=16.06.8
+ULE_VERSION['start']=16.07.02
 
 unset LS_COLORS
 unset LS_OPTIONS
+
+test -r /etc/os-release && source /etc/os-release
+if [ ! -n $ANSI_COLOR ]; then
+	export DISTRO_COLOR="$ANSI_COLOR"
+	unset ANSI_COLOR
+fi
+
+test -r /etc/machine-info && source /etc/machine-info
+if [ ! -n $ANSI_COLOR ]; then
+	export MACHINE_COLOR="$ANSI_COLOR"
+	unset ANSI_COLOR
+fi
 
 test -r ~/.bashrc && source ~/.bashrc
 
