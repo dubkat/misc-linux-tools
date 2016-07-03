@@ -2,15 +2,11 @@
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 ULE_VERSION['aliases']=16.07.02
-export ULE_RUNTIME=6
-
-if [ "$USER" = "root" ]; then
-	alias grouplist="column -s: -t /etc/group | sort -nk3"
-	alias userlist="column -s: -t /etc/passwd | sort -nk3 | colout '^([^ ]+)\s+([a-z])\s+([\d]+)\s+([\d]+)\s+(.*)\s+([^ ]+)\s+([^ ]+)$' white,black,red,yellow,white,none,none | colout '/dev/null|/sbin/nologin' red bold | colout '/home/[^ ]+|/bin/b?[kac]sh' green bold"
-	#alias dmesg="dmesg --human"
-fi
+export ULE_RUNTIME=7
 
 if groups | grep -Eq '\b(wheel|root)\b'; then
+	alias grouplist="column -s: -t /etc/group | sort -nk3"
+	alias userlist="column -s: -t /etc/passwd | sort -nk3 | colout '^([^ ]+)\s+([a-z])\s+([\d]+)\s+([\d]+)\s+(.*)\s+([^ ]+)\s+([^ ]+)$' white,black,red,yellow,white,none,none | colout '/dev/null|/sbin/nologin' red bold | colout '/home/[^ ]+|/bin/b?[kac]sh' green bold"
 	if hash zypper 2>/dev/null; then
 		alias zypper="sudo zypper -s1 --userdata=$USER --gpg-auto-import-keys"
 	fi
@@ -42,7 +38,14 @@ if [ ! -z "$GUI_EDITOR" ]; then
 	alias gsuedit="xdg-su -c \$GUI_EDITOR"
 fi
 
-alias tree="tree -lshACDFv --dirsfirst"
+if hash tree 2>/dev/null; then
+	alias tree="tree -lshACDFv --dirsfirst"
+fi
+
+if hash glances 2>/dev/null; then
+	alias glances="glances --disable-irix --fahrenheit"
+fi
+
 #alias di="di $DI_ARGS"
 
 unalias dir 2>/dev/null

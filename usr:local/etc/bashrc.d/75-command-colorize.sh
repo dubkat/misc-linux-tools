@@ -3,8 +3,11 @@
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
 ULE_VERSION['colorize']=16.07.02
+export ULE_RUNTIME=6
 
 if ! hash colout 2>/dev/null; then return; fi
+
+if [ -z "$COLORIZE" ]; then return; fi
 
 if [ "x${COLORIZE}" != "xyes" ]; then return; fi
 
@@ -26,14 +29,24 @@ if hash wshaper.htb 2>/dev/null; then
 fi
 
 if hash nmap 2>/dev/null; then
-	function nmap_netscout {
+	function _nmap_netscout {
 		: ${1?required argument: network block, such as 192.168.1.0/24}
 		sudo nmap -sn --open "$@" | colout 'scan report for ([^ ]+)|\(([^\)]+)\)|([A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2}:[A-F0-9]{2})|Host is (up)|(Unknown)' \
 		Hash,white,153,182,196 bold,normal,normal,normal,normal
 	}
-        alias nmap.netscout="nmap_netscout"
+        alias nmap.netscout="_nmap_netscout"
 fi
 
+if hash socklist 2>/dev/null; then
+	function _socklist {
+		command socklist | \
+		colout -d Spectrum --scale 0,65535 \
+		'^(?:(type.*))$|^(?:(tcp)|(udp)|(tcp6)|(udp6))\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+([0-9]+)\s+(.*)$' \
+		white,162,172,165,184,Scale,red,Hash,hash,hash,111 \
+		reverse,normal,normal,bold,bold,Spectrum,bold,bold,bold,bold,italic
+	}
+	alias socklist="_socklist"
+fi
 
 if hash zypper 2>/dev/null; then
 	function _repo_list {
@@ -116,7 +129,7 @@ if hash ip 2>/dev/null; then
 	}
 fi
 
-for x in md5{sum,deep,hmac} shasum sha1{sum,deep,hmac} sha224{sum,deep,hmac} sha256{sum,deep,hmac} sha384{sum,deep,hmac} sha512{sum,deep,hmac} whirlpooldeep tigerdeep; do
+for x in md5{sum,deep,hmac} shasum sha1{sum,deep,hmac} sha224{sum,deep,hmac} sha256{sum,deep,hmac} sha384{sum,deep,hmac} sha512{sum,deep,hmac} whirlpool{deep,sum} tigerdeep; do
 	hash_regex='^(?:(.+): (OK)|(.+): (FAILED))'
 	hash_colors="black,green,white,red"
 
@@ -133,6 +146,8 @@ for x in md5{sum,deep,hmac} shasum sha1{sum,deep,hmac} sha224{sum,deep,hmac} sha
 			sha384hmac ) function sha384hmac { command sha384hmac $*| colout "$hash_regex" "$hash_colors"; } ;;
 			sha512sum ) function sha512sum	 { command sha512sum $*	| colout "$hash_regex" "$hash_colors"; } ;;
 			sha512hmac ) function sha512hmac { command sha512hmac $*| colout "$hash_regex" "$hash_colors"; } ;;
+			whirlpoolsum ) function whirlpoolsum { command whirlpoolsum $*|colout "$hash_regex" "$hash_colors"; } ;;
+			whirlpooldeep ) function whirlpooldeep { command whirlpooldeep $* | colout "$hash_regex" "$hash_colors"; } ;;
 		esac
 	fi
 done
@@ -162,7 +177,9 @@ if hash iptables 2>/dev/null; then
 		colout "${ipt_rx_ok}" "${ipt_co_ok}" |
 		colout "${ipt_rx_port}" "${ipt_co_port}"
 	}
+
 	function ip6tables {
 		command ip6tables "$@" | colout "$ipt_regex" "$ipt_colors" "$ipt_extras"
 	}
+
 fi

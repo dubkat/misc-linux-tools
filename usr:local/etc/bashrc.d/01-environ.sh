@@ -4,21 +4,25 @@
 ULE_VERSION['environ']=16.07.02
 export ULE_RUNTIME=3
 
+bits=32
+if [ "`uname -m`" = "x86_64" ]; then
+  bits=64
+fi
+
 : ${TZ:=UTC}
 : ${COLORIZE:=yes}
 : ${LANG:=en_US.UTF-8}
-: ${LANGUAGE:=en}
+: ${LANGUAGE:=en_US}
 : ${MAN_POSIXLY_CORRECT:=1}
 : ${POSIXLY_CORRECT:=0}
-: ${CFLAGS:= -march=native -O2 -g -m64 -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -pipe }
+: ${CFLAGS:= -march=native -O2 -g -m${bits} -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -pipe }
 : ${CXXFLAGS:=$CFLAGS}
 : ${FFLAGS:=$CFLAGS}
 : ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
-: ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed -Wl,-pie}
+: ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed }
 : ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
 : ${DIRCOLORS_THEME:=fruitpunch-256}
 : ${LS_OPTIONS:= --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
-: ${MACHTYPE:=`gcc -dumpmachine`}
 
 if [ "$is" = "bash" ]; then
   for x in $DEFAULT_BASH_OPTS; do
@@ -26,7 +30,7 @@ if [ "$is" = "bash" ]; then
   done
 fi
 
-export CHOST="${MACHTYPE}-gnu"
+export CHOST="`gcc -dumpmachine`-gnu"
 export COLORIZE;
 export TZ;
 export LANG;
@@ -51,5 +55,5 @@ export PERLDB_OPTS="NonStop=1 AutoTrace=1 frame=2"
 export PATH="${ULE_SETTING['BIN_DIR']}:/usr/bin:/bin"
 
 
-
+unset bits
 unalias ls 2>/dev/null ||:

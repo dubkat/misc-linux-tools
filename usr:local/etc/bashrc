@@ -4,32 +4,38 @@
 # http://github.com/dubkat/misc-linux-tools/usr-local-etc
 
 declare -A ULE_VERSION;
-ULE_VERSION['base']=16.06.8
+declare -A ULE_SETTING;
+ULE_VERSION['base']=16.07.2;
+ULE_SUICIDE=1;
 
-if [ ! -z "$ULE_RUNTIME" ]; then
-	# prevent source looping
-	return
+case "$-" in
+	*i* ) unset ULE_SUICIDE; ;;
+esac
+
+# if we are in runtime mode already, and we are called... it's likely
+# from a bash source loop. Also, if SUICIDE is set, it means we are in
+# a non-interactive shell. If we have no TERM, we are useless.... In anycase,
+# we want to gracefully go away.
+if [ -n "$ULE_SUICIDE" -o -n "$ULE_RUNTIME" -o -z "$TERM" ]; then
+	return;
 fi
+
+# we re now in "runtime" mode.
 export ULE_RUNTIME=1
 
 if [ -z "$ULE_MODULES" ]; then
-        declare -r ULE_MODULES="base start environ functions setup colorize aliases"
+	declare -r ULE_MODULES="base start environ functions setup colorize aliases"
 fi
 
-declare -A ULE_SETTING;
 ULE_SETTING['ETC_DIR']="%env_prefix%"
 ULE_SETTING['BIN_DIR']="%bin_prefix%"
 ULE_SETTING['SBIN_DIR']="%sbin_prefix%"
 
-
-if [ ! -z "${TERM}" ] && [ "$is" = "bash" ]; then
-        if [ -d ${ULE_SETTING['ETC_DIR']}/bashrc.d ]; then
-               	for sh in ${ULE_SETTING['ETC_DIR']}/bashrc.d/*.sh; do
-                        if [ -r ${sh} ]; then
-                                . ${sh};
-                        fi
-        	done
-        fi
+if [ -d ${ULE_SETTING['ETC_DIR']}/bashrc.d ]; then
+	for sh in ${ULE_SETTING['ETC_DIR']}/bashrc.d/*.sh; do
+		test -r ${sh} && . ${sh};
+	done
 fi
+
 
 unset ULE_RUNTIME

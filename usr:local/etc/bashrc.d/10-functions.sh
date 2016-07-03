@@ -96,7 +96,7 @@ crypt_backend ()
     echo "This function requires an rpm based system."
     return 1
   fi
-  shared="${1:?first argument must be a shared execuatble}"
+  local shared="${1:?first argument must be a shared execuatble}"
   if [ ! -f "$shared" ]; then
     if ! hash $shared 2>/dev/null; then
       echo "error: $shared is not found." >&2
@@ -105,9 +105,9 @@ crypt_backend ()
       shared="$(hash -t $shared)"
     fi
   fi
-  rpm -qf $shared --queryformat "%{N}/%{V}:\t$shared\n";
+  rpm -qf --queryformat "%{N}/%{V}:\t$shared\n" $shared;
   for backend in $(ldd $shared | egrep '(gcrypt|nettle|weed|libssl|libcrypto)' | awk '{ print $3 }'); do
-    rpm -qf $backend --queryformat "%{N}/%{V}:\t$backend\n";
+    rpm -qf --queryformat "%{N}/%{V}:\t$backend\n" $backend;
   done
 }
 
@@ -116,11 +116,11 @@ function make_user_tmpdir() {
   [ $UID -eq 0 ] && return 0;
   local uuid;
   if hash uuid 2>/dev/null; then
-        uuid=$(uuid -v1);
+    uuid=$(uuid -v1);
   elif hash uuidgen 2>/dev/null; then
-	uuid=$(uuidgen -t);
+	   uuid=$(uuidgen -t);
   else
-        uuid="$(random.sh 192 2>/dev/null | tr '/' '+')"
+    uuid="$(random.sh 192 2>/dev/null | tr '/' '+')"
   fi
   mkdir -p "/tmp/${uuid}"
   chmod 700 "/tmp/${uuid}"
