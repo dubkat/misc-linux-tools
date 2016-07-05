@@ -1,0 +1,62 @@
+## sshd.nanorc - edit your /etc/ssh/config files in color.
+# Copyright (C) 2016 Daniel J. Reidy <dubkat@gmail.com>
+# License: GPLv2
+# URL: https://gist.github.com/dubkat
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+
+syntax "sshd" ".ssh/config|/etc/ssh/sshd?[_\.]config"
+
+# Possible errors and parameters
+#icolor brightred "^[[:space:]]*((un)?(bind|set)|include|syntax|header|magic|linter|i?color|extendsyntax).*$"
+
+## Keywords
+icolor magenta "^[[:space:]]*(acceptenv|addressfamily|allowagentforwarding|allowgroups|allowstreamlocalforwarding|allowtcpforwarding|authorizedkeysfile|challengeresponseauthentication|ciphers|clientalivecountmax|clientaliveinterval|compression|denygroups|fingerprinthash|gatewayports|gssapiauthentication|gssapicleanupcredentials|gssapikeyexchange|gssapistorecredentialsonrekey|gssapistrictacceptorcheck|hostname|hostbasedacceptedkeytypes|hostbasedauthentication|hostbasedusesnamefrompacketonly|hostkey|hostkeyalgorithms|ignorerhosts|ignoreuserknownhosts|ipqos|kbdinteractiveauthentication|kerberosauthentication|kerberosorlocalpasswd|kerberosticketcleanup|kexalgorithms|keyregenerationinterval|listenaddress|logingracetime|loglevel|macs|maxauthtries|maxsessions|maxstartups|passwordauthentication|permitemptypasswords|permitopen|permitrootlogin|permittty|permittunnel|permituserenvironment|permituserrc|pidfile|port|printlastlog|printmotd|protocol|pubkeyacceptedkeytypes|pubkeyauthentication|rekeylimit|rhostsrsaauthentication|rsaauthentication|serverkeybits|streamlocalbindmask|strictmodes|subsystem|syslogfacility|tcpkeepalive|usedns|uselogin|usepam|useprivilegeseparation|versionaddendum|x11displayoffset|x11forwarding|x11uselocalhost|xauthlocation|identityfile|user|visualhostkey|ServerAliveInterval|ServerAliveCountMax|ForwardX11Trusted|ForwardAgent|ForwardX11|SendEnv)"
+
+icolor green      "^[[:space:]]*Host[ ]+([^ ]+)*"
+icolor brightblue "^[[:space:]]*Host[ ]+"
+icolor brightwhite    "^[[:space:]]*Hostname[ ]+[^ ]+$"
+icolor magenta    "^[[:space:]]*Hostname[ ]+"
+
+icolor brightgreen "[[:space:]]yes$"
+icolor brightred   "[[:space:]]no$"
+color green "[[:space:]]sandbox"
+
+# DANGER Will Robinson...
+color red "3des-cbc|blowfish-cbc|cast128-cbc|arcfour|arcfour128|arcfour256|aes128-cbc|aes192-cbc|aes256-cbc|rijndael-cbc@lysator.liu.se"
+color red "ssh-dss|ecdsa-sha2-nistp256|ecdsa-sha2-nistp384|ecdsa-sha2-nistp521|ssh-dss-cert-v01@openssh.com"
+color brightred "null"
+
+# weak
+color yellow "aes128-ctr|aes192-ctr"
+# nist
+color yellow "ecdsa-sha2-nistp256-cert-v01@openssh.com|ecdsa-sha2-nistp384-cert-v01@openssh.com|ecdsa-sha2-nistp521-cert-v01@openssh.org"
+color yellow "ecdsa-sha2-nistp521-cert-v01@openssh.com"
+
+# ok, but could do better...
+color blue "\b(aes256-ctr|ecdh-sha2-nistp521|ecdh-sha2-nistp256|ecdh-sha2-nistp384|ssh-ed25519|ssh-rsa)\b"
+
+color brightgreen "chacha20-poly1305@openssh.com|curve25519-sha256@libssh.org"
+color brightgreen "hmac-sha2-512-etm@openssh.com"
+color green "[hu]mac-.+-etm@openssh.com"
+color green "aes256-gcm@openssh.com|aes128-gcm@openssh.com"
+color green "diffie-hellman-group-exchange-sha256"
+color green "ssh-ed25519-cert-v01@openssh.com|ssh-rsa-cert-v01@openssh.com"
+
+
+
+color blue "prohibit-password|.ssh/authorized_keys|AUTH|INFO|LOCAL\d|/etc/ssh/ssh_host_.+key"
+
+#strings
+icolor brightmagenta ""(\\.|[^"])*""
+
+# Comments
+icolor brightblack "^[[:space:]]*#.*$"
+icolor brightblack "^[[:space:]]*##.*$"
+
+# Trailing whitespace
+color ,green "[[:space:]]+$"

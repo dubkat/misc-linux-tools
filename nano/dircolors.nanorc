@@ -1,0 +1,23 @@
+# nanorc for DIR_COLORS (with 256 color terminal support)
+# Copyleft 2015 Dan Reidy <dubkat@gmail.com> https://google.com/+DanReidy
+#
+
+syntax "dircolors" "DIR_COLORS$"
+
+color black,black "#.*"
+
+color cyan "^TERM ([^ ]+)"
+color ,red "^[A-Z_]+"
+color red,red "^[ ]+"
+color brightwhite     "00;00;0;000"
+color brightwhite     "RESET[ ]+0"
+color green          "00;38;5;(0{1,2}[0-9]|0{0,1}[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(;0[0-8])?"
+color green          "48;5;(0[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]);38;5;(0[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(;0[0-8])?"
+
+color cyan "^\.[^ ]+"
+color brightcyan "^\*[^ ]+"
+color cyan "NORMAL|FILE|RESET|DIR|LINK|MULTIHARDLINK|FIFO|SOCK|DOOR|BLK|CHR|ORPHAN|SETUID|SETGID|CAPABILITY|STICKY_OTHER_WRITABLE|OTHER_WRITABLE|STICKY"
+color brightyellow "^TERM"
+color brightgreen "^EXEC"
+
+# doesn't get much easier than that.

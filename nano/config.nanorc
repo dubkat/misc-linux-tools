@@ -1,0 +1,39 @@
+## automount.nanorc - edit your /etc/auto.* files in technicolor.
+# Copyright (C) 2016 Daniel J. Reidy <dubkat@gmail.com>
+# License: GPLv2
+# URL: https://gist.github.com/dubkat
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+
+syntax "config" "^/etc/([^/]+/)?.*$"
+
+# Trailing whitespace
+color ,green "[[:space:]]+$"
+
+icolor brightwhite "^[^ ]+"
+
+icolor brightcyan "[=][\s\t]*[^ ]+"
+
+icolor brightwhite,magenta "\[.*\]"
+
+
+color brightred "(\[|\]|=|')"
+
+
+#strings
+icolor brightcyan ""(\\.|[^"])*""
+
+
+icolor green "\byes\b"
+icolor red   "\bno\b"
+color red "\b[-]?[0-9]+\b"
+
+# Comments
+icolor brightblack "^[[:space:]]*#.*$"
+icolor brightblack "^[[:space:]]*##.*$"
+
+
