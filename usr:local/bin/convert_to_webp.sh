@@ -1,7 +1,20 @@
 #!/usr/bin/env bash
 # easily convert a directory (and subdirectories) of images to webp format.
-#
 # Copyright (C) 2016 Dan Reidy <dubkat@gmail.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 ## quality factor (0:small..100:big)
 webp_quality=100
@@ -73,9 +86,9 @@ stout() {
 	esac
 }
 info() {
-	echo -ne " ${cc_b}*${cc_reset} ${cc_w}${@}${cc_reset}";
+	echo -e " ${cc_b}*${cc_reset} ${cc_w}${@}${cc_reset}";
 }
-good() { 
+good() {
 	echo -e " ${cc_g}*${cc_reset} ${cc_w}${@}${cc_reset}";
 }
 warn() {
@@ -117,7 +130,7 @@ newsize() {
 
 compute_webp_args() {
 	local file=$1
-	
+
 	local webp_opts="-preset photo -m 6 -pass 3"
 	if [ ${#webp_lossless} = 0 ] || [ "x$webp_lossless" = "x0" ]; then
 		if [ ${#webp_quality} -gt 0 ] && [ $webp_quality -gt 0 ]; then
@@ -145,7 +158,7 @@ compute_webp_args() {
 	fi
 	echo -n "${webp_opts}"
 }
-	
+
 
 
 set_colors
@@ -154,7 +167,7 @@ if [ ${#@} -eq 0 ]; then
 	error >&2 "${cc_bold}usage:${cc_reset}\t${cc_b}$me ${cc_m}${cc_ital}<directory>${cc_nital}${cc_reset}"
 	error >&2 "${cc_reset}\t\tyou may wish to edit the script defaults at the"
 	fatal >&2 "\t\t${cc_reset}top of this scipt, located at $0."
-	
+
 fi
 
 if ! hash cwebp 2>/dev/null; then
@@ -203,10 +216,8 @@ while [ ${#@} -gt 0 ]; do
 				rm "${file}"
 				stout
 			fi
-				
+
 		done
 	fi
 	shift
 done
-
-
