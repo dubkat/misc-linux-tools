@@ -1,0 +1,43 @@
+## automount.nanorc - edit your /etc/auto.* files in technicolor.
+# Copyright (C) 2016 Daniel J. Reidy <dubkat@gmail.com>
+# License: GPLv2
+# URL: https://gist.github.com/dubkat
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+
+
+syntax "desktop" ".desktop"
+
+# Trailing whitespace
+color ,green "[[:space:]]+$"
+
+icolor brightwhite,red "^[^ ]+"
+color brightwhite "^(Exec|TryExec|Terminal|Type|Icon|NotShowIn|StartupNotify|X-GNOME-Autostart-Delay|X-Desktop-File-Install-Version|Categories)"
+color brightwhite "^(xdg-open|Categories|Comment|Encoding|Exec|GenericName|Icon|MimeType|Name|NoDisplay|Path\[\$.\]|StartupNotify|StartupWMClass)"
+color brightwhite "(Terminal|TerminalOptions|Type|Version|X-KDE-SubstituteUID|X-KDE-Username|X-SuSE-translate)"
+
+
+icolor brightcyan "[=][\s\t]*.*$"
+
+icolor brightwhite,blue "\[.*\]"
+
+
+color brightred "(\[|\]|=|')"
+
+
+#strings
+icolor brightcyan ""(\\.|[^"])*""
+
+
+icolor green "\byes\b"
+icolor red   "\bno\b"
+color red "\b[-]?[0-9]+\b"
+
+# Comments
+icolor brightblack "^[[:space:]]*#.*$"
+icolor brightblack "^[[:space:]]*##.*$"
+
+
