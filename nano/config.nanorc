@@ -9,7 +9,7 @@
 # (at your option) any later version.
 
 
-syntax "config" "^/etc/([^/]+/)?.*$"
+syntax "config" "^/etc/([^/]+/)?(config|[^\.]+\.cfg|[^\.]+\.conf)$"
 
 # Trailing whitespace
 color ,green "[[:space:]]+$"
