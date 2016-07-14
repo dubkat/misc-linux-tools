@@ -1,0 +1,38 @@
+## automount.nanorc - edit your /etc/auto.* files in technicolor.
+# Copyright (C) 2016 Daniel J. Reidy <dubkat@gmail.com>
+# License: GPLv2
+# URL: https://gist.github.com/dubkat
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# this is a nanorc file for openSUSE .repo files.
+
+
+syntax "repo" ".repo$"
+
+# Trailing whitespace
+color ,green "[[:space:]]+$"
+
+icolor brightwhite "^[^=]+"
+icolor white "[=][\s\t]*.+"
+icolor brightwhite,magenta "\[.*\]"
+
+
+
+#strings
+icolor brightcyan ""(\\.|[^"])*""
+
+icolor brightwhite,red "^[^=]+="
+icolor brightwhite "^(autorefresh|baseurl|enabled|gpgcheck|gpgkey|keeppackages|name|path|priority|type)"
+color brightgreen "(\$releasever|\$\{releasever\})"
+
+icolor green "\byes\b"
+icolor red   "\bno\b"
+color red "\b[-]?[0-9]+\b"
+color brightred "(\[|\]|=|')"
+# Comments
+icolor brightblack "^[[:space:]]*#.*$"
+icolor brightblack "^[[:space:]]*##.*$"
