@@ -1,6 +1,6 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_VERSION['functions']=16.07.02
+ULE_VERSION['functions']=16.07.14
 export ULE_RUNTIME=4
 
 function _ls ()
@@ -61,8 +61,15 @@ unique_host_color() {
 	if ! hash colout 2>/dev/null; then
 		return
 	fi
-	local hostname="$(hostname -f)"
-	local escape="$(echo $hostname | colout '^.*$' Hash | cat -v | grep -Po '1;38;5;\d+')"
+	local string;
+	# based on mac address
+	if hash ip 2>/dev/null; then
+		local device=$(command ip route show 0.0.0.0/0 | awk '{ print $5 }');
+		string=$(command ip addr show $device | grep 'link/ether' | awk '{ print $2 }');
+	else
+		string="$(hostname -f)"
+	fi
+	local escape="$(echo $string | colout '^.*$' Hash | cat -v | grep -Po '[01];38;5;\d+')"
 	echo -n "$escape"
 }
 
