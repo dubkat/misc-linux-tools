@@ -60,3 +60,5 @@ case $TERM in
 	;;
 
 esac
+
+unset ULE_RUNTIME
