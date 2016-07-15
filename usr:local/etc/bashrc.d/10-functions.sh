@@ -36,6 +36,15 @@ ule_uname() {
         done
 }
 
+rand() {
+	local ceil=${1:-255}
+	case $ceil in
+		*[0-9]* )
+			perl -le '{ print int(rand(shift)); }' $ceil;
+			;;
+	esac
+}
+
 
 generate_path() {
   local user="/opt/local/libexec/gnubin /opt/local/bin /usr/local/bin /usr/games /opt/bin /usr/bin /bin";
@@ -57,19 +66,36 @@ generate_path() {
   echo export PATH=$path
 }
 
+# A best-effort to create color based on the uniqueness of
+# your mac address, or hostname. Thus each machine you have
+# should have very unique colors.
 unique_host_color() {
 	if ! hash colout 2>/dev/null; then
-		return
+		echo -n "1;38;5;$(rand)"
 	fi
 	local string;
+	local device;
+	local escape;
 	# based on mac address
-	if hash ip 2>/dev/null; then
-		local device=$(command ip route show 0.0.0.0/0 | awk '{ print $5 }');
+	if [ "`hash -t ip 2>/dev/null`" = "/sbin/ip" ] -o [ -x "/sbin/ip" ]; then
+		device=$(command /sbin/ip route show 0.0.0.0/0 | awk '{ print $5 }');
 		string=$(command ip addr show $device | grep 'link/ether' | awk '{ print $2 }');
+	elif [ "`hash -t route`" = "/sbin/route" ] \
+	-a [ "`hash -t ifconfig`" = "/sbin/ifconfig" ] \
+	|| \
+	[ -x "/sbin/route" ] -a [ -x "/sbin/ifconfig" ]; then
+		device="$(command /sbin/route|grep default|awk '{ print $NF }')"
+		string="$(command /sbin/ifconfig $device|grep HWaddr|awk '{ print $NF }')"
+	elif hash hostnamectl 2>/dev/null; then
+		string="$(command hostnamectl --static)"
 	else
-		string="$(hostname -f)"
+		string="$(command hostname -f)"
 	fi
-	local escape="$(echo $string | colout '^.*$' Hash | cat -v | grep -Po '[01];38;5;\d+')"
+	if [ -z "$string" ]; then
+		escape="1;38;5;$(rand)"
+	else
+		escape="$(echo $string | colout '^.*$' Hash | cat -v | grep -Po '[01];38;5;\d+')"
+	fi
 	echo -n "$escape"
 }
 
