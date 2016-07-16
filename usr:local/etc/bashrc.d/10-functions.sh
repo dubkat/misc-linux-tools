@@ -172,9 +172,13 @@ session_id() {
 
 # create user designated tmpdir location, if it doesn't exist.
 function make_user_tmpdir() {
-  [ $UID -eq 0 ] && return 0;
+  
 
   if [ -n "$TMPDIR" ]; then
+  	if [ "$TMPDIR" = "/tmp" ]; then
+  		unset TMPDIR
+  		make_user_tmpdir
+  	fi
     return
   fi
 
