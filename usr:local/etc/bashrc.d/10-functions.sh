@@ -36,6 +36,7 @@ ule_uname() {
         done
 }
 
+# generate a random whole number between 0 and X (255 by default)
 rand() {
 	local ceil=${1:-255}
 	case $ceil in
@@ -77,15 +78,14 @@ unique_host_color() {
 	local device;
 	local escape;
 	# based on mac address
-	if [ "`hash -t ip 2>/dev/null`" = "/sbin/ip" ] -o [ -x "/sbin/ip" ]; then
+	# we look for the direct path ourselves as /sbin is likely not in
+	# our users path.
+	if [ -x "/sbin/ip" ]; then
 		device=$(command /sbin/ip route show 0.0.0.0/0 | awk '{ print $5 }');
-		string=$(command ip addr show $device | grep 'link/ether' | awk '{ print $2 }');
-	elif [ "`hash -t route`" = "/sbin/route" ] \
-	-a [ "`hash -t ifconfig`" = "/sbin/ifconfig" ] \
-	|| \
-	[ -x "/sbin/route" ] -a [ -x "/sbin/ifconfig" ]; then
+		string=$(command /sbin/ip addr show $device | grep 'link/ether' | awk '{ print $2 }');
+	elif [ -x "/sbin/ifconfig" -a -x "/sbin/route" ]; then
 		device="$(command /sbin/route|grep default|awk '{ print $NF }')"
-		string="$(command /sbin/ifconfig $device|grep HWaddr|awk '{ print $NF }')"
+		string="$(command /sbin/ifconfig $device|grep HWaddr|awk '{ print $NF }'|tr '[A-Z]' '[a-z]' )"
 	elif hash hostnamectl 2>/dev/null; then
 		string="$(command hostnamectl --static)"
 	else
@@ -100,10 +100,12 @@ unique_host_color() {
 }
 
 unique_user_color() {
+  local escape;
 	if ! hash colout 2>/dev/null; then
-		return
-	fi
-	local escape="$(echo $USER | colout '^.*$' Hash | cat -v | grep -Po '1;38;5;\d+')"
+		escape="1;38;5;`rand`";
+	else
+	   escape="$(echo $USER | colout '^.*$' Hash | cat -v | grep -Po '[01];38;5;\d+')"
+  fi
 	echo -n "$escape"
 }
 
@@ -123,7 +125,14 @@ perlmodtest() {
   #perl -T -Mstrict -M${module} -le '{ printf "* Module %s was found in \@INC\n", shift }' ${module}
 }
 
-crypt_backend ()
+## crypto_backend
+# determine what crypto engine a binary is using.
+# usage: crypt_backend irssi
+# example return:
+# irssi-git/0.8.19+100+g0e5a32f:  /usr/bin/irssi
+# libssl38/2.3.4: /usr/lib64/libssl.so.38
+# libcrypto37/2.3.4:      /usr/lib64/libcrypto.so.37
+crypto_backend ()
 {
   if ! hash rpm 2>/dev/null; then
     echo "This function requires an rpm based system."
@@ -138,16 +147,18 @@ crypt_backend ()
       shared="$(hash -t $shared)"
     fi
   fi
-  rpm -qf --queryformat "%{N}/%{V}:\t$shared\n" $shared;
-  for backend in $(ldd $shared | egrep '(gcrypt|nettle|weed|libssl|libcrypto)' | awk '{ print $3 }'); do
-    rpm -qf --queryformat "%{N}/%{V}:\t$backend\n" $backend;
+  rpm -qf --queryformat "%{VENDOR}\t%{N}/%{V}:\t$shared\n" $shared;
+  for backend in $(ldd $shared | egrep '(gcrypt|nettle|weed|ssl|crypto)' | awk '{ print $3 }'); do
+    rpm -qf --queryformat "%{VENDOR}\t%{N}/%{V}:\t$backend\n" $backend;
   done
 }
 
-# create user designated tmpdir location, if it doesn't exist.
-function make_user_tmpdir() {
-  [ $UID -eq 0 ] && return 0;
-  local uuid;
+session_id() {
+  if [ -n "$ULE_SESSION_ID" ]; then
+    echo "export ULE_SESSION_ID=$ULE_SESSION_ID";
+    return;
+  fi
+
   if hash uuid 2>/dev/null; then
     uuid=$(uuid -v1);
   elif hash uuidgen 2>/dev/null; then
@@ -155,9 +166,34 @@ function make_user_tmpdir() {
   else
     uuid="$(random.sh 192 2>/dev/null | tr '/' '+')"
   fi
-  mkdir -p "/tmp/${uuid}"
-  chmod 700 "/tmp/${uuid}"
-  echo export TMPDIR="/tmp/${uuid}"
+  export ULE_SESSION_ID=$uuid
+  echo "export ULE_SESSION_ID=$uuid"
+}
+
+# create user designated tmpdir location, if it doesn't exist.
+function make_user_tmpdir() {
+  [ $UID -eq 0 ] && return 0;
+
+  if [ -n "$TMPDIR" ]; then
+    return
+  fi
+
+   if [ -d "/tmp" -a -x "/tmp" ]; then
+    TMPDIR="/tmp/${USER}"
+  elif [ -d "/var/tmp" -a -x "/var/tmp" ]; then
+    TMPDIR="/var/tmp/${USER}"
+  elif [ -d "/usr/local/tmp" -a -x "/usr/local/tmp" ]; then
+    TMPDIR="/usr/local/tmp/${USER}"
+  else
+    TMPDIR="${HOME}/.cache/tmp"
+  fi
+
+  if [ ! -d "${TMPDIR}" ]; then
+  	mkdir -p "${TMPDIR}"
+  	chmod 700 "${TMPDIR}"
+  fi
+  export TMPDIR=${TMPDIR}
+  echo export TMPDIR=${TMPDIR}
 }
 
 function vman {

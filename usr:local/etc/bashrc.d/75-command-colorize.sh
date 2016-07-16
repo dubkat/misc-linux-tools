@@ -3,7 +3,7 @@
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
 ULE_VERSION['colorize']=16.07.02
-export ULE_RUNTIME=6
+export ULE_RUNTIME=75
 
 if ! hash colout 2>/dev/null; then return; fi
 

@@ -1,7 +1,7 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_VERSION['environ']=16.07.02
+ULE_VERSION['environ']=16.07.15
 export ULE_RUNTIME=3
 
 bits=32
@@ -15,7 +15,7 @@ fi
 : ${LANGUAGE:=en_US}
 : ${MAN_POSIXLY_CORRECT:=1}
 : ${POSIXLY_CORRECT:=0}
-: ${CFLAGS:= -march=native -O2 -g -m${bits} -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -pipe }
+: ${CFLAGS:= -march=native -O2 -g -m$bits -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fPIC -pipe }
 : ${CXXFLAGS:=$CFLAGS}
 : ${FFLAGS:=$CFLAGS}
 : ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
