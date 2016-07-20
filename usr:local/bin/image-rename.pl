@@ -25,14 +25,14 @@ use if eval { require common::sense } == 0, "strict";
 use if eval { require common::sense } == 0, "warnings";
 use Carp;
 use feature qw(say);
-use version; our $VERSION = 'v15.11.18';
+use version; our $VERSION = 'v16.07.06';
 use Image::ExifTool qw(:Public);
 use HTTP::Date;
 use Env qw(HOME);
 
 my $root_path = shift @ARGV;
 my $seq = sprintf("%000d",0);
-my $output_dir = $ENV{'HOME'} ."/Pictures/sorted";
+my $output_dir = shift @ARGV // $ENV{'HOME'} ."/Pictures/sorted";
 
 # if we want to make directories for year
 my $group_by_year = 1;
@@ -81,7 +81,7 @@ sub file_processor {
   if ( $group_by_year ) {
     ($year) = $date =~ (m/(^\d{4})/x);
     if ( ! -d "$output_dir/$year" ) {
-      qx{ mkdir -p "$output_dir/$year" } or croak "Failed to create directory $output_dir/$year\n";
+      qx{ mkdir -p "$output_dir/$year" } && croak "Failed to create directory $output_dir/$year\n";
     }
     $output = "$output_dir/$year";
   }
