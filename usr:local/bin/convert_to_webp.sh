@@ -37,7 +37,7 @@ google_photos=1
 
 ## primary type of images being processed?
 ## photo, picture, or graph
-webp_hint="photo"
+webp_hint="picture"
 
 ## end of conversion command
 eoc_rm_orig=0
@@ -126,15 +126,13 @@ newsize() {
 	fi
 }
 
-
-
 compute_webp_args() {
 	local file=$1
 
-	local webp_opts="-preset photo -m 6 -pass 3"
+	local webp_opts="-preset ${webp_hint} -metadata all -m 6 -pass 3"
 	if [ ${#webp_lossless} = 0 ] || [ "x$webp_lossless" = "x0" ]; then
 		if [ ${#webp_quality} -gt 0 ] && [ $webp_quality -gt 0 ]; then
-			webp_opts+=" -q $webp_quality "
+			webp_opts+=" -q $webp_quality -jpeg_like "
 		fi
 		if [ ${#webp_near_lossless} -gt 0 ] && [ $webp_near_lossless -lt 100 ]; then
 			webp_opts+=" -near_lossless $webp_near_lossless ";
@@ -159,8 +157,6 @@ compute_webp_args() {
 	echo -n "${webp_opts}"
 }
 
-
-
 set_colors
 
 if [ ${#@} -eq 0 ]; then
@@ -181,7 +177,11 @@ while [ ${#@} -gt 0 ]; do
 	if [ -f "${arg}" ]; then
 		webp_args="$(compute_webp_args ${arg})";
 		info "Processing ${arg}"
-		cwebp -quiet $webp_args -o "${arg%%.*}.webp" "${arg}" || fatal "cwebp exited with errors."
+		if [ "${arg##*.}" = "gif" ]; then
+			gif2webp -o "${arg%%.*}.webp" "${arg}" || warn "gif2webp failed to process ${arg}";
+		else
+			cwebp -quiet $webp_args -o "${arg%%.*}.webp" "${arg}" || fatal "cwebp exited with errors."
+		fi
 	elif [ -d "${arg}" ]; then
 		for file in $(find "${arg}" -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png"  -o -iname "*.tiff" -o -iname "*.tif" -type f ); do
 			#echo "FILE: $file"
@@ -195,7 +195,11 @@ while [ ${#@} -gt 0 ]; do
 			fi
 			webp_args="$(compute_webp_args ${file})"
 			info "Processing ${cc_m}${file}${cc_reset}"
-			cwebp -quiet $webp_args -o "${file%.*}.webp" "${file}" >/dev/null 2>&1
+			if [ "${arg##*.}" = "gif" ]; then
+				gif2webp -o "${file%.*}.webp" "${file}" >/dev/null 2>&1
+			else
+				cwebp -quiet $webp_args -o "${file%.*}.webp" "${file}" >/dev/null 2>&1
+			fi
 			stout
 
 			touch -r "${file}" "${file%.*}.webp"
