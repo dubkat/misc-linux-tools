@@ -7,33 +7,32 @@
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 2 of the License, or
 # (at your option) any later version.
+#
+# this is a nanorc file for openSUSE .repo files.
 
 
-syntax "config" "^/etc/([^/]+/)?(config|[^\.]+\.cfg|[^\.]+\.conf)$"
+syntax "repo" ".repo$"
 
 # Trailing whitespace
 color ,green "[[:space:]]+$"
 
-icolor brightwhite "^[^ ]+"
-
-icolor brightcyan "[=][\s\t]*[^ ]+"
-
+icolor brightwhite "^[^=]+"
+icolor white "[=][\s\t]*.+"
 icolor brightwhite,magenta "\[.*\]"
 
-
-color brightred "(\[|\]|=|')"
 
 
 #strings
 icolor brightcyan ""(\\.|[^"])*""
 
+icolor brightwhite,red "^[^=]+="
+icolor brightwhite "^(autorefresh|baseurl|enabled|gpgcheck|gpgkey|keeppackages|name|path|priority|type)"
+color brightgreen "(\$releasever|\$\{releasever\})"
 
 icolor green "\byes\b"
 icolor red   "\bno\b"
 color red "\b[-]?[0-9]+\b"
-
+color brightred "(\[|\]|=|')"
 # Comments
 icolor brightblack "^[[:space:]]*#.*$"
 icolor brightblack "^[[:space:]]*##.*$"
-
-

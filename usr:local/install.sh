@@ -92,11 +92,6 @@ for x in etc/bashrc.d/*; do
         install -o root -g root -m644 $x ${env_prefix}/bashrc.d
 done
 
-if [ ! -f ${env_prefix}/bashrc.d/01-local.sh ]; then
-        printf "%${ind}s ${gre}%s${rst} \n" " " "01-local.sh"
-        echo "# Place your custom options here." > ${env_prefix}/bashrc.d/01-local.sh
-fi
-
 ind=$[${#bin_prefix}];
 echo "${bld}${blu}$bin_prefix/${rst}"
 for x in bin/*; do

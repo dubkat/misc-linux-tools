@@ -1,6 +1,6 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_VERSION['functions']=16.07.20
+ULE_VERSION['functions']=16.07.15
 export ULE_RUNTIME=4
 
 function _ls ()
@@ -36,6 +36,16 @@ ule_uname() {
         done
 }
 
+# generate a random whole number between 0 and X (255 by default)
+rand() {
+	local ceil=${1:-255}
+	case $ceil in
+		*[0-9]* )
+			perl -le '{ print int(rand(shift)); }' $ceil;
+			;;
+	esac
+}
+
 
 generate_path() {
   local user="/opt/local/libexec/gnubin /opt/local/bin /usr/local/bin /usr/games /opt/bin /usr/bin /bin";
@@ -57,20 +67,45 @@ generate_path() {
   echo export PATH=$path
 }
 
+# A best-effort to create color based on the uniqueness of
+# your mac address, or hostname. Thus each machine you have
+# should have very unique colors.
 unique_host_color() {
 	if ! hash colout 2>/dev/null; then
-		return
+		echo -n "1;38;5;$(rand)"
 	fi
-	local hostname="$(hostname -f)"
-	local escape="$(echo $hostname | colout '^.*$' Hash | cat -v | grep -Po '1;38;5;\d+')"
+	local string;
+	local device;
+	local escape;
+	# based on mac address
+	# we look for the direct path ourselves as /sbin is likely not in
+	# our users path.
+	if [ -x "/sbin/ip" ]; then
+		device=$(command /sbin/ip route show 0.0.0.0/0 | awk '{ print $5 }');
+		string=$(command /sbin/ip addr show $device | grep 'link/ether' | awk '{ print $2 }');
+	elif [ -x "/sbin/ifconfig" -a -x "/sbin/route" ]; then
+		device="$(command /sbin/route|grep default|awk '{ print $NF }')"
+		string="$(command /sbin/ifconfig $device|grep HWaddr|awk '{ print $NF }'|tr '[A-Z]' '[a-z]' )"
+	elif hash hostnamectl 2>/dev/null; then
+		string="$(command hostnamectl --static)"
+	else
+		string="$(command hostname -f)"
+	fi
+	if [ -z "$string" ]; then
+		escape="1;38;5;$(rand)"
+	else
+		escape="$(echo $string | colout '^.*$' Hash | cat -v | grep -Po '[01];38;5;\d+')"
+	fi
 	echo -n "$escape"
 }
 
 unique_user_color() {
+  local escape;
 	if ! hash colout 2>/dev/null; then
-		return
-	fi
-	local escape="$(echo $USER | colout '^.*$' Hash | cat -v | grep -Po '1;38;5;\d+')"
+		escape="1;38;5;`rand`";
+	else
+	   escape="$(echo $USER | colout '^.*$' Hash | cat -v | grep -Po '[01];38;5;\d+')"
+  fi
 	echo -n "$escape"
 }
 
@@ -90,7 +125,14 @@ perlmodtest() {
   #perl -T -Mstrict -M${module} -le '{ printf "* Module %s was found in \@INC\n", shift }' ${module}
 }
 
-crypt_backend ()
+## crypto_backend
+# determine what crypto engine a binary is using.
+# usage: crypt_backend irssi
+# example return:
+# irssi-git/0.8.19+100+g0e5a32f:  /usr/bin/irssi
+# libssl38/2.3.4: /usr/lib64/libssl.so.38
+# libcrypto37/2.3.4:      /usr/lib64/libcrypto.so.37
+crypto_backend ()
 {
   if ! hash rpm 2>/dev/null; then
     echo "This function requires an rpm based system."
@@ -105,16 +147,18 @@ crypt_backend ()
       shared="$(hash -t $shared)"
     fi
   fi
-  rpm -qf --queryformat "%{N}/%{V}:\t$shared\n" $shared;
-  for backend in $(ldd $shared | egrep '(gcrypt|nettle|weed|libssl|libcrypto)' | awk '{ print $3 }'); do
-    rpm -qf --queryformat "%{N}/%{V}:\t$backend\n" $backend;
+  rpm -qf --queryformat "%{VENDOR}\t%{N}/%{V}:\t$shared\n" $shared;
+  for backend in $(ldd $shared | egrep '(gcrypt|nettle|weed|ssl|crypto)' | awk '{ print $3 }'); do
+    rpm -qf --queryformat "%{VENDOR}\t%{N}/%{V}:\t$backend\n" $backend;
   done
 }
 
-# create user designated tmpdir location, if it doesn't exist.
-function make_user_tmpdir() {
-  [ $UID -eq 0 ] && return 0;
-  local uuid;
+session_id() {
+  if [ -n "$ULE_SESSION_ID" ]; then
+    echo "export ULE_SESSION_ID=$ULE_SESSION_ID";
+    return;
+  fi
+
   if hash uuid 2>/dev/null; then
     uuid=$(uuid -v1);
   elif hash uuidgen 2>/dev/null; then
@@ -122,42 +166,62 @@ function make_user_tmpdir() {
   else
     uuid="$(random.sh 192 2>/dev/null | tr '/' '+')"
   fi
-  mkdir -p "/tmp/${uuid}"
-  chmod 700 "/tmp/${uuid}"
-  echo export TMPDIR="/tmp/${uuid}"
+  export ULE_SESSION_ID=$uuid
+  echo "export ULE_SESSION_ID=$uuid"
+}
+
+# create user designated tmpdir location, if it doesn't exist.
+function make_user_tmpdir() {
+  
+
+  if [ -n "$TMPDIR" ]; then
+  	if [ "$TMPDIR" = "/tmp" ]; then
+  		unset TMPDIR
+  		make_user_tmpdir
+  	fi
+    return
+  fi
+
+   if [ -d "/tmp" -a -x "/tmp" ]; then
+    TMPDIR="/tmp/${USER}"
+  elif [ -d "/var/tmp" -a -x "/var/tmp" ]; then
+    TMPDIR="/var/tmp/${USER}"
+  elif [ -d "/usr/local/tmp" -a -x "/usr/local/tmp" ]; then
+    TMPDIR="/usr/local/tmp/${USER}"
+  else
+    TMPDIR="${HOME}/.cache/tmp"
+  fi
+
+  if [ ! -d "${TMPDIR}" ]; then
+  	mkdir -p "${TMPDIR}"
+  	chmod 700 "${TMPDIR}"
+  fi
+  export TMPDIR=${TMPDIR}
+  echo export TMPDIR=${TMPDIR}
 }
 
 function vman {
   /usr/bin/man $* | col -bp | iconv -c | view -c 'set ft=man nomod nolist' -
 }
 
-function xephyr {
-	local winmode=win
-	local host=broadcast
-	if [ ${#@} -gt 2 ]; then
-		echo "usage: xephyr <window|fullscreen> [host]" >&2
-		exit 1
-	fi
-	for arg in $@; do
-		case $arg in
-			win|window) winmode=win; ;;
-			fs|fullscreen|full) winmode=fs; ;;
-			broadcast|broad|bc|255.255.255.255) host=broadcast; ;;
-			* ) host="$arg"; ;;
-		esac
-	done
+#random_mac() {
+#  echo "Switching off radio for mac address change."
+#  ifconfig wlp2s0 down
+#  macchanger -A wlp2s0
+#  macchanger -e wlp2s0
+#  ifconfig wlp2s0 up
+#  echo "macchange complete"
+#}
 
-	xephyr="Xephyr -query acid.unix-world.zone -br -ac -noreset -fp tcp/localhost:7100 +iglx "
-	if [ "$winmode" = "win" ]; then
-		xephyr+="-screen 1280x720 :1 "
-	elif [ "$windmode" = "fs" ]; then
-		xephyr+="-fullscreen "
-	fi
-	if [ "$host" = "broadcast" ]; then
-		xephyr+="-broadcast "
-	else
-		xephyr+="-query $host"
-	fi
-	$xephyr >/dev/null 2>&1 &
-	return $?
-}
+#default_mac() {
+#  local default=00:00:d8:00:00:01
+#  ifconfig wlp2s0 down
+#  if [ ${#default} ]; then
+#    macchanger -mac="$default" wlp2s0
+#  else
+#    macchanger --permanent wlp2s0
+#  fi
+#  ifconfig wlp2s0 up
+#}
+
+unset ULE_RUNTIME

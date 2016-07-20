@@ -3,9 +3,10 @@
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 # http://github.com/dubkat/misc-linux-tools/usr-local-etc
 
+unset ULE_VERSION;
 declare -A ULE_VERSION;
 declare -A ULE_SETTING;
-ULE_VERSION['base']=16.07.2;
+ULE_VERSION['base']=16.07.14;
 ULE_SUICIDE=1;
 
 case "$-" in

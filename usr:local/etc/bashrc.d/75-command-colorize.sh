@@ -3,7 +3,7 @@
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
 ULE_VERSION['colorize']=16.07.02
-export ULE_RUNTIME=6
+export ULE_RUNTIME=75
 
 if ! hash colout 2>/dev/null; then return; fi
 
@@ -20,6 +20,16 @@ if hash colorsvn 2>/dev/null; then
 	alias svn="`command -v colorsvn`"
 fi
 
+if hash hostnamectl 2>/dev/null; then
+	hostnamectl() {
+		if [ ${#@} -gt 0 ]; then
+			command hostnamectl $@
+			return $?
+		fi
+		command hostnamectl | colout '^([^:]+): (.*)$' white,Hash
+	}
+fi
+	
 
 if hash wshaper.htb 2>/dev/null; then
 	function qos {
