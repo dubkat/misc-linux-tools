@@ -1,6 +1,6 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_VERSION['functions']=16.07.02
+ULE_VERSION['functions']=16.07.20
 export ULE_RUNTIME=4
 
 function _ls ()
@@ -131,22 +131,33 @@ function vman {
   /usr/bin/man $* | col -bp | iconv -c | view -c 'set ft=man nomod nolist' -
 }
 
-#random_mac() {
-#  echo "Switching off radio for mac address change."
-#  ifconfig wlp2s0 down
-#  macchanger -A wlp2s0
-#  macchanger -e wlp2s0
-#  ifconfig wlp2s0 up
-#  echo "macchange complete"
-#}
+function xephyr {
+	local winmode=win
+	local host=broadcast
+	if [ ${#@} -gt 2 ]; then
+		echo "usage: xephyr <window|fullscreen> [host]" >&2
+		exit 1
+	fi
+	for arg in $@; do
+		case $arg in
+			win|window) winmode=win; ;;
+			fs|fullscreen|full) winmode=fs; ;;
+			broadcast|broad|bc|255.255.255.255) host=broadcast; ;;
+			* ) host="$arg"; ;;
+		esac
+	done
 
-#default_mac() {
-#  local default=00:00:d8:00:00:01
-#  ifconfig wlp2s0 down
-#  if [ ${#default} ]; then
-#    macchanger -mac="$default" wlp2s0
-#  else
-#    macchanger --permanent wlp2s0
-#  fi
-#  ifconfig wlp2s0 up
-#}
+	xephyr="Xephyr -query acid.unix-world.zone -br -ac -noreset -fp tcp/localhost:7100 +iglx "
+	if [ "$winmode" = "win" ]; then
+		xephyr+="-screen 1280x720 :1 "
+	elif [ "$windmode" = "fs" ]; then
+		xephyr+="-fullscreen "
+	fi
+	if [ "$host" = "broadcast" ]; then
+		xephyr+="-broadcast "
+	else
+		xephyr+="-query $host"
+	fi
+	$xephyr >/dev/null 2>&1 &
+	return $?
+}
