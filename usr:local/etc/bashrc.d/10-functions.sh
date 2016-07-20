@@ -238,6 +238,7 @@ function xephyr {
     xephyr+="-query $host "
   fi
   xephyr+=":1 "
+  echo $xephyr >&2
   $xephyr >/dev/null 2>&1 &
   return $?
 }
