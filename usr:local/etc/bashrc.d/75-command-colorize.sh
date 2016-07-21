@@ -61,7 +61,7 @@ fi
 if hash zypper 2>/dev/null; then
 	function _repo_list {
 		arg="${1:- -pa}"
-		sudo zypper --table-style 2 lr $arg | colout -d Spectrum --scale 0,100 \
+		sudo zypper --table-style ${ZYPPER_TABLE_STYLE:-2} lr $arg | colout -d Spectrum --scale 0,100 \
 		'(^#.*$)|([─│┼])|((?:base|alpha|repo|devel|home|obs|[xyz]|google|fact(?:ory)?)-[^ ]+)|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
 		white,purple,Hash,green,red,Spectrum,Scale \
 		reverse,normal,Spectrum,bold,bold,Spectrum,Scale
