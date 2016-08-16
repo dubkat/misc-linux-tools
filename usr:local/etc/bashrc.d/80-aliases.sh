@@ -1,7 +1,7 @@
 # 95-aliases.sh
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
-ULE_VERSION['aliases']=16.07.15
+ULE_VERSION['aliases']=16.08.16
 export ULE_RUNTIME=80
 
 if groups | grep -Eq '\b(wheel|root)\b'; then
@@ -30,11 +30,11 @@ if [ -r "/usr/local/etc/vimrc.more" ]; then
 	alias vmore="vim -u /usr/local/etc/vimrc.more - "
 fi
 
-if [ ! -z "$EDITOR" ]; then
+if [ -n "$EDITOR" ]; then
 	alias suedit="sudo \$EDITOR"
 fi
 
-if [ ! -z "$GUI_EDITOR" ]; then
+if [ -n "$GUI_EDITOR" ]; then
 	alias gsuedit="xdg-su -c \$GUI_EDITOR"
 fi
 
@@ -50,6 +50,10 @@ fi
 
 unalias dir 2>/dev/null
 unalias vdir 2>/dev/null
+
+if hash ip 2>/dev/null; then
+    alias ip="ip -c"
+fi
 
 if hash qpaeq 2>/dev/null; then
 	alias equalizer=qpaeq
@@ -68,6 +72,7 @@ alias l="ls -lA --human --classify"
 alias uname="ule_uname"
 
 alias +="pushd ."
+alias cd="cd -P"
 alias ..="cd .."
 alias cd..="cd .."
 alias cd-="cd -"

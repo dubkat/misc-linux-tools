@@ -1,8 +1,8 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_VERSION['environ']=16.07.15
-export ULE_RUNTIME=3
+ULE_VERSION['environ']=16.08.16
+export ULE_RUNTIME=5
 
 bits=32
 if [ "`uname -m`" = "x86_64" ]; then
@@ -25,14 +25,18 @@ fi
 : ${DIRCOLORS_THEME:=fruitpunch-256}
 : ${LS_OPTIONS:= --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
 
-if [ "$is" = "bash" ]; then
-	opts="$(echo $BASHOPTS|tr ':' ' ')"
-  for x in $opts; do
-    shopt -s $x
-  done
+if hash rpm 2>/dev/null; then
+    CHOST="$(rpm -E %_target_platform)"
+elif hash gcc 2>/dev/null; then
+    CHOST="$(gcc -dumpmachine)"
 fi
 
-export CHOST="`gcc -dumpmachine`-gnu"
+
+#if uname -o | grep -iq gnu; then
+#    CHOST+="-gnu"
+#fi
+
+export CHOST;
 export COLORIZE;
 export TZ;
 export LANG;
@@ -45,7 +49,7 @@ export DIRCOLORS_THEME;
 export LS_OPTIONS;
 
 # change grep's default color
-export GREP_COLORS="ms=\${MACHINE_COLOR}:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36"
+export GREP_COLORS="ms=${MACHINE_COLOR}:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36"
 export DI_ARGS="-h -ssm -f SMbuf1T"
 export IDN_DISABLE=1
 export PERLDOC="-MPod::Perldoc::ToTerm -o term -w indent:5 -w loose:true -w sentence:false"

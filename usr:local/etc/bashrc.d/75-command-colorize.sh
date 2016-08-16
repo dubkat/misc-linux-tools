@@ -2,7 +2,7 @@
 # Sparkles & Poniez for all.
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
-ULE_VERSION['colorize']=16.07.02
+ULE_VERSION['colorize']=16.08.16
 export ULE_RUNTIME=75
 
 if ! hash colout 2>/dev/null; then return; fi
@@ -29,7 +29,6 @@ if hash hostnamectl 2>/dev/null; then
 		command hostnamectl | colout '^([^:]+): (.*)$' white,Hash
 	}
 fi
-	
 
 if hash wshaper.htb 2>/dev/null; then
 	function qos {
@@ -60,7 +59,7 @@ fi
 
 if hash zypper 2>/dev/null; then
 	function _repo_list {
-		arg="${1:- -pa}"
+		local arg="${1:- -pa}"
 		sudo zypper --table-style ${ZYPPER_TABLE_STYLE:-2} lr $arg | colout -d Spectrum --scale 0,100 \
 		'(^#.*$)|([─│┼])|((?:base|alpha|repo|devel|home|obs|[xyz]|google|fact(?:ory)?)-[^ ]+)|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
 		white,purple,Hash,green,red,Spectrum,Scale \
@@ -72,9 +71,9 @@ fi
 
 
 function df {
-	fsrx='(/[^ ]*)'
-	fs=" (fuseblk|fuse.sshfs|sshfs|hfs|msdos|exfat|autofs|devtmpfs|procfs|devfs|tmpfs|reiserfs\d?|ext[234]|btrfs|xfs|ufs|iso8859) "
-	fsco='Hash'
+	local fsrx='(/[^ ]*)'
+	loca fs=" (fuseblk|fuse.sshfs|sshfs|hfs|msdos|exfat|autofs|devtmpfs|procfs|devfs|tmpfs|reiserfs\d?|ext[234]|btrfs|xfs|ufs|iso8859) "
+	local fsco='Hash'
 	command df $* | colout "$fsrx" white | colout "$fs" Hash Hash | colout ' \b[\d.]*[KMGT0]\b ' cyan rainbow | colout --scale 0,100 '\s*([0-9]{1,3}%)\s*' scale;
 }
 
@@ -133,12 +132,6 @@ if hash mediainfo 2>/dev/null; then
 	}
 fi
 
-if hash ip 2>/dev/null; then
-	function ip {
-		command ip "$@" | colout '((?:BROAD|MULTI|ANY)CAST)' green normal | colout 'state UNKNOWN' yellow bold | colout 'state UP' green bold | colout '(state) (DOWN)' red,red bold,blink | colout '(link/[^ ]+) ([^ ]+)' cyan,white italic,bold | colout '(brd) ([^ ]+)' white,yellow bold,normal | colout '^(\d+):\s(\S+): .*' white,green | colout '(inet6?) (\S+)' white,green bold,,bold | colout 'scope global' green bold | colout 'scope link' yellow bold | colout 'scope host|NO-CARRIER' red normal | colout 'forever' green normal | colout 'dynamic' magenta normal
-	}
-fi
-
 for x in md5{sum,deep,hmac} shasum sha1{sum,deep,hmac} sha224{sum,deep,hmac} sha256{sum,deep,hmac} sha384{sum,deep,hmac} sha512{sum,deep,hmac} whirlpool{deep,sum} tigerdeep; do
 	hash_regex='^(?:(.+): (OK)|(.+): (FAILED))'
 	hash_colors="black,green,white,red"
@@ -158,8 +151,11 @@ for x in md5{sum,deep,hmac} shasum sha1{sum,deep,hmac} sha224{sum,deep,hmac} sha
 			sha512hmac ) function sha512hmac { command sha512hmac $*| colout "$hash_regex" "$hash_colors"; } ;;
 			whirlpoolsum ) function whirlpoolsum { command whirlpoolsum $*|colout "$hash_regex" "$hash_colors"; } ;;
 			whirlpooldeep ) function whirlpooldeep { command whirlpooldeep $* | colout "$hash_regex" "$hash_colors"; } ;;
+			tigerdeep ) function tigerdeep { command tigerdeep $* | colout "$hash_regex" "$hash_colors"; } ;;
+
 		esac
 	fi
+	unset x hash_colors hash_regex
 done
 
 if hash iptables 2>/dev/null; then
