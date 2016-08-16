@@ -22,12 +22,12 @@ if [ -z "$ULE_DONT_TOUCH_MY_CFLAGS" ]; then
 : ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed }
 fi
-: ${DEFAULT_BASH_OPTS:=extglob autocd cdspell checkjobs checkwinsize dirspell histappend huponexit}
 : ${DIRCOLORS_THEME:=fruitpunch-256}
 : ${LS_OPTIONS:= --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
 
 if [ "$is" = "bash" ]; then
-  for x in $DEFAULT_BASH_OPTS; do
+	opts="$(echo $BASHOPTS|tr ':' ' ')"
+  for x in $opts; do
     shopt -s $x
   done
 fi
