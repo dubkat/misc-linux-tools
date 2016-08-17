@@ -72,7 +72,7 @@ fi
 
 function df {
 	local fsrx='(/[^ ]*)'
-	loca fs=" (fuseblk|fuse.sshfs|sshfs|hfs|msdos|exfat|autofs|devtmpfs|procfs|devfs|tmpfs|reiserfs\d?|ext[234]|btrfs|xfs|ufs|iso8859) "
+	local fs=" (fuseblk|fuse.sshfs|sshfs|hfs|msdos|exfat|autofs|devtmpfs|procfs|devfs|tmpfs|reiserfs\d?|ext[234]|btrfs|xfs|ufs|iso8859) "
 	local fsco='Hash'
 	command df $* | colout "$fsrx" white | colout "$fs" Hash Hash | colout ' \b[\d.]*[KMGT0]\b ' cyan rainbow | colout --scale 0,100 '\s*([0-9]{1,3}%)\s*' scale;
 }
