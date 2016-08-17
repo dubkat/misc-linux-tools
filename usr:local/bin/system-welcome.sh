@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 #################################################################################
-ULE_WELCOME_VERSION=16.05.02
+ULE_WELCOME_VERSION=16.08.16
 #
 # Version: 2016031500
 #
@@ -248,7 +248,7 @@ fi
 if hash hostnamectl >/dev/null 2>&1; then
   hostname_short="`hostnamectl --pretty`"
   hostname_fqdn="`hostnamectl --static`"
-else
+elif hash hostname >/dev/null 2>&1; then
   hostname_short="`hostname -s`"
   hostname_fqdn="`hostname -f`"
 fi
@@ -281,16 +281,16 @@ if [ $havenet -gt 0 ] && [ "x${IPv4}" != "x" ]; then
 fi
 
 if [ $havenet -gt 0 ] && [ "x${IPv6}" != "x" ]; then
-  if hash geoiplookup6 2>/dev/null; then
-    country6=$(geoiplookup6 $IPv6  | grep -v 'not found' | grep Country | cut --complement -b-27)
-    rawasn6=$(geoiplookup $IPv6 | grep -v 'not found' | grep ASNum | cut --complement -b-21)
-    asn6=$(echo $rawasn6 | tr ' ' '\t'| cut -f1)
-    isp6="$(echo $rawasn6 | cut --complement -b-$[ ${#asn6} + 1 ])"
-    [ ${#country6} -gt 0 ] || country6="-";
-    [ ${#asn6} -gt 0 ] || asn6="-";
-    [ ${#isp6} -gt 0 ] || isp6="-";
-  elif hash whois 2>/dev/null; then
-    net6name="`whois $IPv6 | grep OrgName | awk -F": +" '{ print $2 }'`"
+  #if hash geoiplookup6 2>/dev/null; then
+  #  country6=$(geoiplookup6 $IPv6  | grep -v 'not found' | grep Country | cut --complement -b-27)
+  #  rawasn6=$(geoiplookup $IPv6 | grep -v 'not found' | grep ASNum | cut --complement -b-21)
+  #  asn6=$(echo $rawasn6 | tr ' ' '\t'| cut -f1)
+  #  isp6="$(echo $rawasn6 | cut --complement -b-$[ ${#asn6} + 1 ])"
+  #  [ ${#country6} -gt 0 ] || country6="-";
+  #  [ ${#asn6} -gt 0 ] || asn6="-";
+  #  [ ${#isp6} -gt 0 ] || isp6="-";
+  if hash whois 2>/dev/null; then
+    net6name="`whois $IPv6 | grep netname | awk -F": +" '{ print $2 }'`"
   fi
 fi
 
