@@ -167,7 +167,7 @@ EXEC 00
 .lrz	00;38;5;185;01
 
 # Image formats (yellow)
-.webp   00;38;5;186;01
+.webp   00;38;5;190;01
 .jpg    00;38;5;167
 .JPG    00;38;5;167 #stupid but needed
 .jpeg   00;38;5;167
