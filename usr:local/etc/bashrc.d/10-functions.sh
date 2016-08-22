@@ -228,7 +228,7 @@ function xephyr {
 
   xephyr="Xephyr -br -ac -noreset -fp tcp/localhost:7100 +iglx "
   if [ "$winmode" = "win" ]; then
-    xephyr+="-screen 1280x720 "
+    xephyr+="-screen ${XEPHYR_WIN_SIZE} "
   elif [ "$windmode" = "fs" ]; then
     xephyr+="-fullscreen "
   fi

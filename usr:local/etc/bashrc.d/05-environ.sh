@@ -24,6 +24,7 @@ if [ -z "$ULE_DONT_TOUCH_MY_CFLAGS" ]; then
 fi
 : ${DIRCOLORS_THEME:=fruitpunch-256}
 : ${LS_OPTIONS:= --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
+: ${XEPHYR_WIN_SIZE:=1280x800}
 
 if hash rpm 2>/dev/null; then
     CHOST="$(rpm -E %_target_platform)"
@@ -47,6 +48,7 @@ export POSIXLY_CORRECT;
 export LDFLAGS;
 export DIRCOLORS_THEME;
 export LS_OPTIONS;
+export XEPHYR_WIN_SIZE;
 
 # change grep's default color
 export GREP_COLORS="ms=${MACHINE_COLOR}:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36"
