@@ -1,7 +1,7 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_VERSION['environ']=16.08.16
+ULE_VERSION['environ']=16.08.21
 export ULE_RUNTIME=5
 
 bits=32
