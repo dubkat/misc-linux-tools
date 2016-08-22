@@ -243,4 +243,16 @@ function xephyr {
   return $?
 }
 
+ssh_supported_modes() {
+    if ! hash ssh 2>/dev/null; then
+        echo "Something's not right, no ssh?" >&2
+        return 1
+    fi
+    for x in cipher cipher-auth mac kex key key-cert key-plain protocol-version; do
+        echo "$(tput bold)$x$(tput sgr0)";
+        ssh -Q $x | colout '^(aes256-gcm@openssh.com|chacha20-poly1305@openssh.com|curve25519-sha256@libssh.org|diffie-hellman-group-exchange-sha256|ecdh-sha2-nistp521|ecdsa-sha2-nistp521|hmac-sha2-512|hmac-sha2-512-etm@openssh.com|ssh-ed25519|ssh-rsa)$' green bold
+        echo;
+    done
+}
+
 unset ULE_RUNTIME
