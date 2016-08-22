@@ -1,0 +1,13 @@
+[Unit]
+Description=Run Chromium in the Background
+Documentation=http://www.chromium.org
+After=display-manager.service
+
+[Service]
+ExecStart=/usr/bin/chromium --no-startup-window
+Restart=always
+RestartSec=15
+RemainAfterExit=no
+
+[Install]
+WantedBy=default.target

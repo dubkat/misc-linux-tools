@@ -1,0 +1,12 @@
+[Unit]
+Description=RXVT Daemon
+Documentation=man:urxvt
+After=display-manager.service
+
+[Service]
+ExecStart=/usr/bin/urxvtd-256color -q -o
+Restart=always
+
+[Install]
+Also=urxvtd.socket
+WantedBy=default.target
