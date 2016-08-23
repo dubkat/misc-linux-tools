@@ -25,20 +25,16 @@
     background-color: #f0d6f0;
     color: #030103;
 }
-
 #sendMessage {
     background-color: #7a4b85;
     color: #b2e7ff;
 }
-
 Select an element {
     /*display: none;*/
 }
-
 a.disable-ad-web img {
     display: none;
 }
-
 a.username {
     color: #78efff;
     font-style: normal;
@@ -46,74 +42,58 @@ a.username {
     font-weight: bold;
     text-transform: uppercase;
 }
-
 a.vip-toggle {
     display: none;
 }
-
 a.visitor-username {
     color: #9edef2;
 }
-
 button.btn.btn-success.btn-xs {
     background-color: #1d401d;
     color: #ffffff;
     font-weight: bold;
 }
-
 div.ad-horizontal-banners.a4alive-header {
     display: none;
 }
-
 div.block-header {
     background-color: #542c54;
 }
-
 div.clearfix {
     background-color: #361136;
 }
-
 div.col-xs-10.col-sm-10.col-md-10.col-lg-10 {
     background-color: #361136;
     color: #8efaf8;
 }
-
 div.col-xs-10.col-sm-10.messageContent {
     color: #080708;
 }
-
 div.col-xs-12.col-sm-12.col-md-12.col-lg-12 {
     background-color: #380738;
     color: #b0a4b0;
 }
-
 div.col-xs-12.col-sm-12.col-md-12.col-lg-12.drop-paddings-lr {
     background-color: #5c3c5c;
 }
-
 div.col-xs-12.col-sm-12.col-md-12.col-lg-12.nd-users-show-container-wrap {
     background-color: #361136;
     color: #000000;
 }
-
 div.data {
     background-color: #604a61;
     color: #fae8fa;
 }
-
 div.drop-paddings-lr {
     background-color: #380b38;
 }
-
 div.help-wrap a {
     color: #ff3908;
     display: none;
 }
-
 div.horizontal-banners {
     display: none;
 }
-
 div.location {
     border-color: #faafdc;
     color: #e3ffa6;
@@ -121,7 +101,6 @@ div.location {
     font-weight: bold;
     padding-top: 2em;
 }
-
 div.nd-user.nd-online {
     background-color: #211f18;
     border-color: #471247;
@@ -132,16 +111,13 @@ div.nd-user.nd-online {
     font-weight: normal;
     line-height: 30px;
 }
-
 div.pp-block-content {
     background-color: #360e36;
     color: #d9f9ff;
 }
-
 div.pp-block-content form textarea {
     color: #080208;
 }
-
 div.profile-header {
     background-color: #90bfc2;
     font-family: Roboto;
@@ -149,11 +125,9 @@ div.profile-header {
     font-weight: bold;
     text-transform: uppercase;
 }
-
 div.tab_handle {
     display: none;
 }
-
 div.username a {
     border-bottom-width: 2pxpx;
     border-color: #bce6f5;
@@ -170,11 +144,9 @@ div.username a {
     padding-bottom: 1px;
     text-transform: uppercase;
 }
-
 div.width-full.header {
     background-color: #663066;
 }
-
 h2.content-block-header {
     background-color: #90bfc2;
     font-family: Roboto;
@@ -182,11 +154,9 @@ h2.content-block-header {
     font-weight: bold;
     text-transform: uppercase;
 }
-
 ins a img {
     display: none;
 }
-
 li.active a {
     color: #baf5ff;
     font-family: Roboto;
@@ -195,41 +165,33 @@ li.active a {
     font-weight: normal;
     text-transform: capitalize;
 }
-
 li.container-fluid.evenConversation {
     background-color: #cfc4cf;
 }
-
 li.container-fluid.oddConversation {
     background-color: #858585;
 }
-
 span.count.buddyAlertCount {
     color: #f55af0;
     font-family: monospace;
     font-size: 0.8em;
 }
-
 ul li a {
     color: #c0dbed;
     font-family: Roboto;
     font-style: italic;
     font-weight: bold;
 }
-
 ul.nav.nav-pills.nav-mailbox {
     color: #22b2e6;
 }
-
 ul.nav.navbar-nav.main-nav {
     background-color: #3d3c3d;
     color: #cdfafa;
 }
-
 ul.nav.navbar-nav.main-nav li a {
     color: #bfeff2;
 }
-
 li.evenConversation {
     background-color: #2e2e2e;
     font-family: Roboto;
@@ -238,7 +200,6 @@ li.evenConversation {
     text-transform: none;
     color: #a7ddeb;
 }
-
 div.conversationDetails {
     font-weight: bold;
     font-family: Helvetica;
@@ -247,11 +208,9 @@ div.conversationDetails {
     font-size: 1.3em;
     padding: 3px;
 }
-
 li.oddConversation {
     background-color: #361436;
 }
-
 a.conversation-read-link.conversation-link {
     text-transform: none;
     text-decoration: none;
@@ -259,7 +218,6 @@ a.conversation-read-link.conversation-link {
     font-size: 1.2;
     font-style: normal;
 }
-
 div.screen {
     font-family: Helvetica;
     font-style: normal;
@@ -268,11 +226,9 @@ div.screen {
     text-transform: none;
     font-weight: bold;
 }
-
 div.pull-left.conversation-header {
     text-decoration: none;
 }
-
 span.conversation-counter-unread {
     font-family: monospace;
     font-variant: normal;
@@ -280,19 +236,16 @@ span.conversation-counter-unread {
     color: #eb15a7;
     font-weight: bold;
 }
-
 span.conversation-counter {
     font-family: monospace;
     color: #87e4f5;
     font-size: 0.8em;
     font-weight: bold;
 }
-
 img.delete-conversation-img {
     color: #ed1111;
     background-color: #cc8d5e;
 }
-
 a.conversation-link {
     font-family: Helvetica;
     font-weight: bold;
@@ -300,70 +253,55 @@ a.conversation-link {
     font-style: normal;
     font-size: 1.2;
 }
-
 span.grid {
     font-family: monospace;
     font-size: 0.6em;
 }
-
 span.user {
     text-transform: lowercase;
     font-variant: small-caps;
     letter-spacing: 2px;
 }
-
 input.btn.btn-sm.btn-warning {
     background-color: #ba79c4;
 }
-
 input.btn.btn-sm {
     background-color: #55447a;
 }
-
 h2.side-header {
     color: #b696f2;
 }
-
 span.count.conversationAlertCount {
     font-family: monospace;
     font-size: 0.8em;
     color: #f55af0;
 }
-
 a.btn.orange.btn-safe-dating-tips {
     background-color: #55447a;
 }
-
 a.btn.orange.btn-health-resources {
     background-color: #55447a;
 }
-
 a.btn.orange.btn-see-all {
     background-color: #55447a;
 }
-
 button.btn.orange.small {
     background-color: #55447a;
 }
-
 li.prev-btn.disabled span {
     color: #a3a3a3;
 }
-
 li.next-btn a {
     background-color: #55447a;
 }
-
 span.orange-highlight {
     color: #fc3f3f;
     font-weight: bold;
 }
-
 #conversation-membership-area a {
     font-weight: bold;
     color: #ff5e66;
 }
-
 span.username {
     color: #ffc4ec;
     font-weight: bold;
@@ -371,18 +309,15 @@ span.username {
     letter-spacing: 2px;
     font-variant: small-caps;
     text-transform: none;
-    line-height: 1,2em;
+    line-height: 1, 2em;
     font-family: monospace;
 }
-
 span.btn.btn-xs.btn-warning {
     background-color: #76649c;
 }
-
 span.messageText {
     font-family: monospace;
 }
-
 div.col-xs-2.col-sm-2.userPicture a {
     color: #4f2a4f;
     font-family: Roboto;
@@ -390,38 +325,32 @@ div.col-xs-2.col-sm-2.userPicture a {
     font-weight: bold;
     text-decoration: none;
 }
-
 tr.tblheads td {
     background-color: #6b2a6b;
     color: #d4f9ff;
 }
-
 tr.tblheads td font {
-    background-color: inherit;;
+    background-color: inherit;
+    ;
 }
-
 td.tblheads {
     background-color: #6b2a6b;
 }
-
 tbody tr td {
     background-color: #6b2a6b;
     border-style: solid;
     border-color: #5c2e5c;
 }
-
 div.my-friends-list-item a {
     font-family: monospace;
     font-variant: small-caps;
     font-size: 1.4em;
     font-weight: bold;
 }
-
 a.btn.btn-sm.btn-warning.onclick= {
     background-color: #6b2a6b;
     font-weight: bold;
 }
-
 #conversation-membership-area {
     display: none;
 }
