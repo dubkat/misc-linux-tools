@@ -15,7 +15,7 @@ fi
 : ${LANGUAGE:=en_US}
 : ${MAN_POSIXLY_CORRECT:=1}
 : ${POSIXLY_CORRECT:=0}
-if [ -z "$ULE_DONT_TOUCH_MY_CFLAGS" ]; then
+if [ -z "$ULE_DONT_TOUCH_MY_CFLAGS" ] && [ "`uname -s`" != "Darwin" ]; then
 : ${CFLAGS:= -march=native -O2 -g -m$bits -fmessage-length=0 -D_FORTIFY_SOURCE=2 -fstack-protector-strong -funwind-tables -fasynchronous-unwind-tables -fPIC -pipe }
 : ${CXXFLAGS:=$CFLAGS}
 : ${FFLAGS:=$CFLAGS}
@@ -25,6 +25,8 @@ fi
 : ${DIRCOLORS_THEME:=fruitpunch-256}
 : ${LS_OPTIONS:= --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
 : ${XEPHYR_WIN_SIZE:=1280x800}
+: ${MACHINE_COLOR:=}
+: ${GREP_COLORS:="ms=${MACHINE_COLOR:-$DISTRO_COLOR}:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36"}
 
 if hash rpm 2>/dev/null; then
     CHOST="$(rpm -E %_target_platform)"
@@ -51,7 +53,7 @@ export LS_OPTIONS;
 export XEPHYR_WIN_SIZE;
 
 # change grep's default color
-export GREP_COLORS="ms=${MACHINE_COLOR}:mc=01;31:sl=:cx=:fn=35:ln=32:bn=32:se=36"
+export GREP_COLORS
 export DI_ARGS="-h -ssm -f SMbuf1T"
 export IDN_DISABLE=1
 export PERLDOC="-MPod::Perldoc::ToTerm -o term -w indent:5 -w loose:true -w sentence:false"

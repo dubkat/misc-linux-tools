@@ -73,15 +73,17 @@ generate_path() {
 # should have very unique colors.
 unique_host_color() {
   if ! hash colout 2>/dev/null; then
+    logger -t 'ULE: unique_host_color' "Please install colout. you can find it on github or your distro's package manager."
     echo -n "1;38;5;$(rand)"
+    return
   fi
   local string;
   local device;
   local escape;
-  # based on mac address
-  # we look for the direct path ourselves as /sbin is likely not in
-  # our users path.
-  if [ -x "/sbin/ip" ]; then
+  # sometimes systemd makes life easy.
+  if [ -r /etc/machine-id ]; then
+    string="$(< /etc/machine-id )"
+  elif [ -x "/sbin/ip" ]; then
     device=$(command /sbin/ip route show 0.0.0.0/0 | awk '{ print $5 }');
     string=$(command /sbin/ip addr show $device | grep 'link/ether' | awk '{ print $2 }');
   elif [ -x "/sbin/ifconfig" -a -x "/sbin/route" ]; then
@@ -92,12 +94,13 @@ unique_host_color() {
   else
     string="$(command hostname -f)"
   fi
-  if [ -z "$string" ]; then
-    escape="1;38;5;$(rand)"
+
+  if [ ! -z "$string" ]; then
+    echo -n $string | colout '^.*$' Hash | cat -v | grep -Po '[01];\d+(;\d+;\d+)?' | tr -d '\n'
   else
-    escape="$(echo $string | colout '^.*$' Hash | cat -v | grep -Po '[01];38;5;\d+')"
+    # pathetic !
+    echo -n "1;38;5;$(rand)"
   fi
-  echo -n "$escape"
 }
 
 unique_user_color() {

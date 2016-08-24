@@ -68,6 +68,7 @@ fi
 alias ls="_ls"
 alias ll="ls -l --human --dereference --classify"
 alias l="ls -lA --human --classify"
+alias grep="grep --color=auto"
 
 alias uname="ule_uname"
 
