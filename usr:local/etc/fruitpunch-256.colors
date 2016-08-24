@@ -110,14 +110,14 @@ DIR 00;38;5;33 # directory 01;34
 LINK 00;38;5;37 # symbolic link. (If you set this to 'target' instead of a
 # numerical value, the color is as for the file pointed to.)
 MULTIHARDLINK 00 # regular file with more than one link
-FIFO 48;5;230;38;5;136;01 # pipe
-SOCK 48;5;230;38;5;136;01 # socket
-DOOR 48;5;230;38;5;136;01 # door
+FIFO 48;5;230;38;5;167;01 # pipe
+SOCK 48;5;230;38;5;167;01 # socket
+DOOR 48;5;230;38;5;167;01 # door
 BLK 48;5;230;38;5;244;01 # block device driver
 CHR 48;5;230;38;5;244;01 # character device driver
 ORPHAN 48;5;235;38;5;160;05 # symlink to nonexistent file, or non-stat'able file
 SETUID 48;5;160;38;5;230 # file that is setuid (u+s)
-SETGID 48;5;136;38;5;230 # file that is setgid (g+s)
+SETGID 48;5;167;38;5;230 # file that is setgid (g+s)
 CAPABILITY 30;41 # file with capability
 STICKY_OTHER_WRITABLE 48;5;64;38;5;230 # dir that is sticky and other-writable (+t,o+w)
 OTHER_WRITABLE 48;5;235;38;5;33 # dir that is other-writable (o+w) and not sticky
@@ -167,34 +167,35 @@ EXEC 00
 .lrz	00;38;5;185;01
 
 # Image formats (yellow)
-.jpg    00;38;5;136
-.JPG    00;38;5;136 #stupid but needed
-.jpeg   00;38;5;136
-.gif    00;38;5;136
-.bmp    00;38;5;136
-.pbm    00;38;5;136
-.pgm    00;38;5;136
-.ppm    00;38;5;136
-.tga    00;38;5;136
-.xbm    00;38;5;136
-.xpm    00;38;5;136
-.tif    00;38;5;136
-.tiff   00;38;5;136
-.png    00;38;5;136
-.PNG    00;38;5;136
-.svg    00;38;5;136
-.svgz   00;38;5;136
-.mng    00;38;5;136
-.pcx    00;38;5;136
-.dl     00;38;5;136
-.xcf    00;38;5;136
-.xwd    00;38;5;136
-.yuv    00;38;5;136
-.cgm    00;38;5;136
-.emf    00;38;5;136
-.eps    00;38;5;136
-.CR2    00;38;5;136
-.ico    00;38;5;136
+.webp   00;38;5;190;01
+.jpg    00;38;5;167
+.JPG    00;38;5;167 #stupid but needed
+.jpeg   00;38;5;167
+.gif    00;38;5;167
+.bmp    00;38;5;167
+.pbm    00;38;5;167
+.pgm    00;38;5;167
+.ppm    00;38;5;167
+.tga    00;38;5;167
+.xbm    00;38;5;167
+.xpm    00;38;5;167
+.tif    00;38;5;167
+.tiff   00;38;5;167
+.png    00;38;5;167
+.PNG    00;38;5;167
+.svg    00;38;5;167
+.svgz   00;38;5;167
+.mng    00;38;5;167
+.pcx    00;38;5;167
+.dl     00;38;5;167
+.xcf    00;38;5;167
+.xwd    00;38;5;167
+.yuv    00;38;5;167
+.cgm    00;38;5;167
+.emf    00;38;5;167
+.eps    00;38;5;167
+.CR2    00;38;5;167
+.ico    00;38;5;167
 
 # Files of special interest (base1)
 .tex             00;38;5;245
@@ -219,14 +220,31 @@ EXEC 00
 .md              00;38;5;147
 *README.markdown 00;38;5;147;01
 *README.md       00;38;5;147;01
+.htm             00;38;5;111
+.html            00;38;5;111
+.php             01;38;5;129
+.php4            00;38;5;129
+.php5            00;38;5;129
+.phtm            00;38;5;129
+.phtml           00;38;5;129
+.inc             00;38;5;126
+.js              01;38;5;94
+.css             01;38;5;84
+.less            00;38;5;86
+.json            00;38;5;153
+.coffee          01;38;5;137
 .ini             00;38;5;195
 .yml             00;38;5;195
 .cfg             00;38;5;195
 .conf            00;38;5;195
 .rc              00;38;5;195
 .nanorc          00;38;5;195
+.service         00;38;5;196
+.target          00;38;5;191
+.timer           00;38;5;178
+.socket          00;38;5;81
 .h               00;38;5;117
-.c               00;38;5;178;01
+.c               01;38;5;178
 .cpp             00;38;5;180
 .cc              00;38;5;180
 .sqlite          00;38;5;246
@@ -374,12 +392,12 @@ EXEC 00
 .pdf 00;38;5;160
 .gtable 00;38;5;142
 .pm 00;38;5;208
-.pl 00;38;5;209;01
+.pl 01;38;5;209
 .perl 00;38;5;209
 .py 00;38;5;198
 .pyc 00;38;5;199
 .ash  00;38;5;202
-.sh 00;38;5;206;01
+.sh 00;38;5;206
 .bash 00;38;5;206
 .csh 00;38;5;214
 .zsh 00;38;5;218
