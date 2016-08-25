@@ -2,7 +2,7 @@
 # Sparkles & Poniez for all.
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
-ULE_VERSION['colorize']=16.08.16
+ULE_VERSION['colorize']=16.08.25
 export ULE_RUNTIME=75
 
 if ! hash colout 2>/dev/null; then return; fi
@@ -138,20 +138,20 @@ for x in md5{sum,deep,hmac} shasum sha1{sum,deep,hmac} sha224{sum,deep,hmac} sha
 
 	if hash $x 2>/dev/null; then
 		case $x in
-			md5sum   ) function md5sum 	 { command md5sum $*  	| colout "$hash_regex" "$hash_colors"; } ;;
-			shasum   ) function shasum  	 { command shasum $*  	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha1sum  ) function sha1sum 	 { command sha1sum $* 	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha1hmac ) function sha1hmac 	 { command sha1hmac $* 	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha224sum ) function sha224sum 	 { command sha224sum $* | colout "$hash_regex" "$hash_colors"; } ;;
-			sha256sum ) function sha256sum	 { command sha256sum $*	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha256hmac ) function sha256hmac { command sha256hmac $*| colout "$hash_regex" "$hash_colors"; } ;;
-			sha384sum ) function sha384sum	 { command sha384sum $*	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha384hmac ) function sha384hmac { command sha384hmac $*| colout "$hash_regex" "$hash_colors"; } ;;
-			sha512sum ) function sha512sum	 { command sha512sum $*	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha512hmac ) function sha512hmac { command sha512hmac $*| colout "$hash_regex" "$hash_colors"; } ;;
-			whirlpoolsum ) function whirlpoolsum { command whirlpoolsum $*|colout "$hash_regex" "$hash_colors"; } ;;
-			whirlpooldeep ) function whirlpooldeep { command whirlpooldeep $* | colout "$hash_regex" "$hash_colors"; } ;;
-			tigerdeep ) function tigerdeep { command tigerdeep $* | colout "$hash_regex" "$hash_colors"; } ;;
+			md5sum   ) function md5sum 	 { command md5sum "$@"  	| colout "$hash_regex" "$hash_colors"; } ;;
+			shasum   ) function shasum  	 { command shasum "$@"  	| colout "$hash_regex" "$hash_colors"; } ;;
+			sha1sum  ) function sha1sum 	 { command sha1sum "$@" 	| colout "$hash_regex" "$hash_colors"; } ;;
+			sha1hmac ) function sha1hmac 	 { command sha1hmac "$@" 	| colout "$hash_regex" "$hash_colors"; } ;;
+			sha224sum ) function sha224sum 	 { command sha224sum "$@" | colout "$hash_regex" "$hash_colors"; } ;;
+			sha256sum ) function sha256sum	 { command sha256sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
+			sha256hmac ) function sha256hmac { command sha256hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
+			sha384sum ) function sha384sum	 { command sha384sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
+			sha384hmac ) function sha384hmac { command sha384hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
+			sha512sum ) function sha512sum	 { command sha512sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
+			sha512hmac ) function sha512hmac { command sha512hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
+			whirlpoolsum ) function whirlpoolsum { command whirlpoolsum "$@"|colout "$hash_regex" "$hash_colors"; } ;;
+			whirlpooldeep ) function whirlpooldeep { command whirlpooldeep "$@" | colout "$hash_regex" "$hash_colors"; } ;;
+			tigerdeep ) function tigerdeep { command tigerdeep "$@" | colout "$hash_regex" "$hash_colors"; } ;;
 
 		esac
 	fi
