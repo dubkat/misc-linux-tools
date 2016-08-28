@@ -223,7 +223,7 @@ function xephyr {
   for arg in $@; do
     case $arg in
       win|window) winmode=win; ;;
-      fs|fullscreen|full) winmode=fs; ;;
+      fs|fullscreen|full) winmode=fullscreen; ;;
       broadcast|broad|bc|255.255.255.255) host=broadcast; ;;
       * ) host="$arg"; ;;
     esac
@@ -232,7 +232,7 @@ function xephyr {
   xephyr="Xephyr -br -ac -noreset -fp tcp/localhost:7100 +iglx "
   if [ "$winmode" = "win" ]; then
     xephyr+="-screen ${XEPHYR_WIN_SIZE} "
-  elif [ "$windmode" = "fs" ]; then
+  elif [ "$winmode" = "fullscreen" ]; then
     xephyr+="-fullscreen "
   fi
   if [ "$host" = "broadcast" ]; then
