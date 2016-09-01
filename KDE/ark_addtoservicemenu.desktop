@@ -1,0 +1,42 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=KonqPopupMenu/Plugin
+MimeType=all/all;
+Actions=compressHereAsTarXZ;compressHereAsTarLZMA;compressHereAsTarBZ;compressTo;
+X-KDE-Require=Write
+X-KDE-Submenu=Compress
+X-KDE-StartupNotify=false
+X-KDE-Priority=TopLevel
+
+
+
+[Desktop Action compressHereAsTarXZ]
+Name=Here as tar.xz
+Icon=ark
+Exec=ark --changetofirstpath --add --autofilename tar.xz %F
+
+
+
+
+[Desktop Action compressHereAsTarBZ]
+Name=Here as tar.bz2
+Icon=ark
+Exec=ark --changetofirstpath --add --autofilename tar.bz2 %F
+
+
+
+[Desktop Action compressHereAsTarLZMA]
+Name=Here as tar.lzma
+Icon=ark
+Exec=ark --changetofirstpath --add --autofilename tar.lzma %F
+
+
+[Desktop Action compressHereAsZip]
+Name=Here as .zip
+Icon=ark
+Exec=ark --changetofirstpath --add --autofilename zip %F
+
+[Desktop Action compressTo]
+Name=Compress to...
+Icon=ark
+Exec=ark --add --changetofirstpath --dialog %F
