@@ -6,7 +6,6 @@
 #       AUTHOR: Dan Reidy (dubkat), dubkat@gmail.com
 #     HOMEPAGE: http://google.com/+DanReidy
 #    MORE INFO: https://github.com/dubkat/misc-linux-tools
-#      VERSION: v15.10.07
 #      CREATED: 2015-07-24
 #      LICENSE: GPL-2
 #
@@ -29,15 +28,23 @@ use version; our $VERSION = 'v16.07.06';
 use Image::ExifTool qw(:Public);
 use HTTP::Date;
 use Env qw(HOME);
-
+use constant { TRUE => 1, FALSE => 0 };
 my $root_path = shift @ARGV;
 my $seq = sprintf("%000d",0);
-my $output_dir = shift @ARGV // $ENV{'HOME'} ."/Pictures/sorted";
+my $custom_dir = FALSE;
+my $output_dir;
+
+$output_dir = shift @ARGV;
+if ( defined($output_dir) ) {
+    $custom_dir = TRUE;
+} else {
+    $output_dir = $ENV{'HOME'} ."/Pictures/sorted";
+}
 
 # if we want to make directories for year
-my $group_by_year = 1;
+my $group_by_year = TRUE;
 # auto delete camera generated thumnails.
-my $delete_thumbs = 1;
+my $delete_thumbs = TRUE;
 
 sub file_processor {
   my $in_file = shift;
@@ -51,7 +58,7 @@ sub file_processor {
   }
 
   # skip over any file in the camera that we ourselves dont specifically handle.
-  if ( $in_file !~ m/\.(jpe?g|png|tiff?|webm|webp|mkv|mp4|mov)$/ix ) {
+  if ( $in_file !~ m/\.(jpe?g|png|tiff?|webm|webp|mkv|mp4|mov|3gp)$/ix ) {
     return;
   }
 
@@ -67,6 +74,10 @@ sub file_processor {
   if ( $type eq "jpeg" ) {
     $type = "jpg";
   }
+
+  if ( $type =~ m/mov|3gp|m4v|m4a/x ) {
+      $type = 'mp4';
+  }
   my ($date,$time) = split / +/, $create;
   # lets stop modifying timestamps. most OS's should be able to handle it.
   #$time =~ s/:/-/gx;
@@ -74,11 +85,11 @@ sub file_processor {
   my $stamp = str2time("$date $time");
 
 
-  my ($sec,$min,$hour,$mday,$mon,$gyear,$wday,$yday,$isdst) = gmtime($stamp);
-  my $media_touch = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $gyear+1900, $mon, $mday, $hour, $min, $sec;
+  my ($sec,$min,$hour,$mday,$mon,$gyear,$wday,$yday,$isdst) = localtime($stamp);
+  my $media_touch = sprintf "%04d-%02d-%02d %02d:%02d:%02d", $gyear+1900, $mon+1, $mday, $hour, $min, $sec;
   #print "DEBUG: stamp($stamp), media_touch($media_touch) \n";
 
-  if ( $group_by_year ) {
+  if ( $custom_dir == FALSE && $group_by_year == TRUE ) {
     ($year) = $date =~ (m/(^\d{4})/x);
     if ( ! -d "$output_dir/$year" ) {
       qx{ mkdir -p "$output_dir/$year" } && croak "Failed to create directory $output_dir/$year\n";
@@ -91,12 +102,8 @@ sub file_processor {
   my $edited = "";
   my $basename = sprintf("%s/%s", $output, $create);
 
-  if ( $_ =~ m/\-edited\./x ) {
+  if ( $_ =~ m/\-edited|_lzn\./x ) {
     $edited = "-edited";
-  }
-
-  if ( $type =~ m/mov|3gp/x ) {
-    $type = 'mp4';
   }
 
   my $newfile = sprintf("%s%s.%s", $basename, $edited, $type);
@@ -106,21 +113,32 @@ sub file_processor {
     $newfile = sprintf("%s%s.%s", $new_basename, $edited, $type);
     $seq++;
   }
+  $seq = 1;
 
-  my @cmd;
-
+  my $ret;
   if ( $_ =~ m/\.(jpe?g|png|tiff?|webp)$/ix ) {
-    #printf("source: %s\ndest: %s\n\n", $_, $newfile);
-    qx(mv -v $_ $newfile);
-    #qx(touch -d "$media_touch" $newfile);
+      #printf("source: %s\ndest: %s\n\n", $_, $newfile);
+      if ( lc($_) ne lc($newfile) ) {
+          system("mv", "-v", $_, $newfile);
+          $ret = $? >> 8;
+          if ($ret != 0 ) {
+              die("Return: $ret. Failed to move $_ to $newfile");
+          }
+      }
+      system("touch", "-d", $media_touch, $newfile);
+      $ret = $? >> 8;
+      if ($ret != 0 ) {
+          die("Return: $ret. Failed to touch $newfile with date '$media_touch'");
+      }
+      next;
   }
 
   #rename($_, $newfile);
-  if ($_ =~ /\.(3gp|mov)$/ix ) {
+  if ($_ !~ /\.mp4$/ix ) {
     my $vinfo = ImageInfo($_);
     my $vcodec = undef;
     my $acodec = undef;
-    require Data::Dumper;
+    #require Data::Dumper;
     #print Dumper $info;
 
     if( $vinfo->{'CompressorID'} eq 'avc1' ) {
@@ -130,15 +148,26 @@ sub file_processor {
       $vcodec = "libx264";
     }
 
-    if ($vinfo->{'AudioFormat'} eq 'aac' ) {
-      $acodec = "-acodec copy";
+    if ($vinfo->{'AudioFormat'} =~ /^aac|mp4a$/ix ) {
+      $acodec = "copy";
     } else {
-      $acodec = "-strict -2";
+      $acodec = "aac";
     }
-    qx(ffmpeg -i $_ -map 0 -metadata creation_time='$media_touch' -c:v $vcodec $acodec $newfile);
+    system("ffmpeg", "-i", $_, "-metadata", "creation_time='$media_touch'", "-c:v", $vcodec, "-c:a", $acodec, $newfile);
+    $ret = $? >> 8;
+    if ($ret != 0 ) {
+        die("Return: $ret. Failed to convert $_ to $newfile");
+    }
+    unlink $_;
+    system("touch", "-d", $media_touch, $newfile);
+    $ret = $? >> 8;
+    if ($ret != 0 ) {
+        die("Return: $ret. Failed to touch $newfile with date '$media_touch'");
+    }
+
+    next;
   }
-  #system(@cmd);
-  $seq = 1;
+
 }
 
 
