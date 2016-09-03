@@ -1,7 +1,7 @@
 # 95-aliases.sh
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
-ULE_VERSION['aliases']=16.08.16
+ULE_VERSION['aliases']=16.09.02
 export ULE_RUNTIME=80
 
 if groups | grep -Eq '\b(wheel|root)\b'; then
@@ -73,7 +73,6 @@ alias grep="grep --color=auto"
 alias uname="ule_uname"
 
 alias +="pushd ."
-alias cd="cd -P"
 alias ..="cd .."
 alias cd..="cd .."
 alias cd-="cd -"

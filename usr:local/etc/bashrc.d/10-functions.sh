@@ -1,6 +1,6 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_VERSION['functions']=16.08.21
+ULE_VERSION['functions']=16.09.02
 export ULE_RUNTIME=4
 
 function _ls ()
@@ -136,7 +136,7 @@ perlmodtest() {
 # irssi-git/0.8.19+100+g0e5a32f:  /usr/bin/irssi
 # libssl38/2.3.4: /usr/lib64/libssl.so.38
 # libcrypto37/2.3.4:      /usr/lib64/libcrypto.so.37
-crypto_backend ()
+crypto_backend()
 {
   if ! hash rpm 2>/dev/null; then
     echo "This function requires an rpm based system."
@@ -175,9 +175,7 @@ session_id() {
 }
 
 # create user designated tmpdir location, if it doesn't exist.
-function make_user_tmpdir() {
-
-
+make_user_tmpdir() {
   if [ -n "$TMPDIR" ]; then
     if [ "$TMPDIR" = "/tmp" ]; then
       unset TMPDIR
@@ -204,11 +202,11 @@ function make_user_tmpdir() {
   echo export TMPDIR=${TMPDIR}
 }
 
-function vman {
+vman() {
   /usr/bin/man $* | col -bp | iconv -c | view -c 'set ft=man nomod nolist' -
 }
 
-function xephyr {
+xephyr() {
   local winmode=win
   local host=broadcast
   if ! hash Xephyr 2>/dev/null; then
@@ -258,4 +256,7 @@ ssh_supported_modes() {
     done
 }
 
+uledate() {
+    date "+%y.%m.%d" | colout '^([0-9]{2})\.([0-9]{2})\.([0-9]{2})$' Hash,Hash,Hash
+}
 unset ULE_RUNTIME
