@@ -7,9 +7,9 @@
 #
 # More Information at
 # https://github.com/seebi/dircolors-solarized
-# modified by dubkat
+# heavily modified by dubkat
 # https://github.com/dubkat
-# version: v15.11.08
+# version: v16.09.17
 #
 # Term Section
 TERM Eterm
@@ -278,16 +278,16 @@ EXEC 00
 .cache      00;38;5;24
 
 # Audio formats (orange)
-.aac    00;38;5;166;01
+.aac    01;38;5;166
 .au     00;38;5;166
-.flac   00;38;5;166;01
+.flac   01;38;5;166
 .mid    00;38;5;166
 .midi   00;38;5;166
 .mka    00;38;5;166
 .mp3    00;38;5;166
 .mpc    00;38;5;166
-.ogg    00;38;5;166;01
-.opus	00;38;5;166;01
+.ogg    01;38;5;166
+.opus	01;38;5;166
 .ra     00;38;5;166
 .wav    00;38;5;166
 .m4a    00;38;5;166
@@ -296,22 +296,23 @@ EXEC 00
 .oga    00;38;5;166
 .spx    00;38;5;166
 .xspf   00;38;5;166
+.mood   00;38;5;140
 
 # Video formats (as audio + bold)
-.mov    00;38;5;127;01
-.MOV    00;38;5;127;01
+.mov    01;38;5;127
+.MOV    01;38;5;127
 .mpg    00;38;5;183
 .mpeg   00;38;5;183
 .m2v    00;38;5;166
-.mkv    00;38;5;184;01
-.ogm    00;38;5;184;01
-.mp4    00;38;5;135;01
+.mkv    01;38;5;184
+.ogm    01;38;5;184
+.mp4    01;38;5;135
 .m4v    00;38;5;135
 .mp4v   00;38;5;135
 .h264   00;38;5;135
-.x264   00;38;5;135;01
+.x264   01;38;5;135
 .vob    00;38;5;181
-.qt     00;38;5;127;01
+.qt     01;38;5;127
 .nuv    00;38;5;181
 .wmv    00;38;5;181
 .asf    00;38;5;181
@@ -324,7 +325,7 @@ EXEC 00
 .gl     00;38;5;181
 .m2ts   00;38;5;181
 .divx   00;38;5;181
-.webm   00;38;5;184;01
+.webm   01;38;5;184
 # http://wiki.xiph.org/index.php/MIME_Types_and_File_Extensions
 .axv 00;38;5;181
 .anx 00;38;5;181

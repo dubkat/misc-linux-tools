@@ -3,9 +3,11 @@
 ULE_VERSION['setup']=16.07.02
 export ULE_RUNTIME=5
 
-if [ ! -z "$TERM" ]; then
+if [ -n "$TERM" ]; then
   if [[ $(tput colors) -ge 88 ]]; then
-    if [ -r ${ULE_SETTING['ETC_DIR']}/${DIRCOLORS_THEME}.colors ]; then
+    if [ "$DIRCOLORS_THEME" = "system" ]; then
+        ||:
+    elif [ -r ${ULE_SETTING['ETC_DIR']}/${DIRCOLORS_THEME}.colors ]; then
       eval `dircolors -b ${ULE_SETTING['ETC_DIR']}/${DIRCOLORS_THEME}.colors`
     fi
   fi

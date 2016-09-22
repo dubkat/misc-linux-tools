@@ -1,7 +1,7 @@
 # 10-environ.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
 
-ULE_VERSION['environ']=16.08.21
+ULE_VERSION['environ']=16.09.17
 export ULE_RUNTIME=5
 
 bits=32
@@ -22,7 +22,7 @@ if [ -z "$ULE_DONT_TOUCH_MY_CFLAGS" ] && [ "`uname -s`" != "Darwin" ]; then
 : ${CPPFLAGS:= -D_FORTIFY_SOURCE=2 }
 : ${LDFLAGS:= -Wl,-O2 -Wl,--sort-common -s -Wl,--as-needed }
 fi
-: ${DIRCOLORS_THEME:=fruitpunch-256}
+: ${DIRCOLORS_THEME:=fruitpunch}
 : ${LS_OPTIONS:= --human-readable --group-directories-first --time-style=long-iso --sort=version --color=auto -b -N }
 : ${XEPHYR_WIN_SIZE:=1280x800}
 : ${MACHINE_COLOR:=}

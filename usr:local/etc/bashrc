@@ -6,7 +6,7 @@
 unset ULE_VERSION;
 declare -A ULE_VERSION;
 declare -A ULE_SETTING;
-ULE_VERSION['base']=16.07.14;
+ULE_VERSION['base']=16.09.17;
 ULE_SUICIDE=1;
 
 case "$-" in

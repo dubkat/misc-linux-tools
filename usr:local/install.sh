@@ -84,6 +84,12 @@ for x in etc/*; do
         printf "%${ind}s ${yel}%s${rst} \n" " " $(basename $x)
         install -o root -g root -m644 $x ${env_prefix}
 done
+for x in fruitpunch.colors zenburn.colors; do
+    if [ -r ../$x ]; then
+    printf "%${ind}s ${yel}%s${rst} \n" " " $(basename ../$x);
+    install -o root -g root -m644 ../$x ${env_prefix};
+done
+
 
 ind=$[ind + 8];
 echo "${bld}${blu}$env_prefix/bashrc.d/${rst}"
