@@ -86,8 +86,9 @@ for x in etc/*; do
 done
 for x in fruitpunch.colors zenburn.colors; do
     if [ -r ../$x ]; then
-    printf "%${ind}s ${yel}%s${rst} \n" " " $(basename ../$x);
-    install -o root -g root -m644 ../$x ${env_prefix};
+        printf "%${ind}s ${yel}%s${rst} \n" " " $(basename ../$x);
+        install -o root -g root -m644 ../$x ${env_prefix};
+    fi
 done
 
 
