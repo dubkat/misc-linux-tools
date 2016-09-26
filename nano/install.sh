@@ -12,7 +12,7 @@ if [ ! -r /etc/nanorc ]; then
 fi
 
 LIST="`command dir $(dirname $0)/*.nanorc`"
-echo "Installing extra syntax hightlighting for nano..."
+echo "$(tput bold)Installing extra syntax hightlighting for nano...$(tput sgr0)"
 dest=""
 for path in /usr/share/nano /usr/local/share/nano /opt/local/share/nano; do
     if test -d $path -a -x $path; then
