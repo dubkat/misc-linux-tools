@@ -1,12 +1,11 @@
 # 95-aliases.sh
 # Extra bash custimizations. The real magic happens in /usr/local/etc/bashrc.d
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
-ULE_VERSION['aliases']=16.09.02
+ULE_VERSION['aliases']=16.09.26
 export ULE_RUNTIME=80
 
-if groups | grep -Eq '\b(wheel|root)\b'; then
+if groups | grep -Eq '\b(wheel|root|admin|adm)\b'; then
 	alias grouplist="column -s: -t /etc/group | sort -nk3"
-	alias userlist="column -s: -t /etc/passwd | sort -nk3 | colout '^([^ ]+)\s+([a-z])\s+([\d]+)\s+([\d]+)\s+(.*)\s+([^ ]+)\s+([^ ]+)$' white,black,red,yellow,white,none,none | colout '/dev/null|/sbin/nologin' red bold | colout '/home/[^ ]+|/bin/b?[kac]sh' green bold"
 	if hash zypper 2>/dev/null; then
 		alias zypper="sudo zypper -s1 --userdata=$USER --gpg-auto-import-keys"
 	fi
@@ -78,4 +77,3 @@ alias cd..="cd .."
 alias cd-="cd -"
 
 unset ULE_RUNTIME
-

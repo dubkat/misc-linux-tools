@@ -2,7 +2,7 @@
 # Sparkles & Poniez for all.
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
-ULE_VERSION['colorize']=16.08.25
+ULE_VERSION['colorize']=16.09.26
 export ULE_RUNTIME=75
 
 if ! hash colout 2>/dev/null; then return; fi
@@ -10,6 +10,10 @@ if ! hash colout 2>/dev/null; then return; fi
 if [ -z "$COLORIZE" ]; then return; fi
 
 if [ "x${COLORIZE}" != "xyes" ]; then return; fi
+
+if [ -z "$MACHINE_COLOR" ]; then
+	export MACHINE_COLOR="$(unique_host_color)";
+fi
 
 # a few things do it for us with no work.
 if hash colordiff 2>/dev/null; then
@@ -19,6 +23,10 @@ fi
 if hash colorsvn 2>/dev/null; then
 	alias svn="`command -v colorsvn`"
 fi
+
+userlist() {
+	column -s: -t /etc/passwd | sort -nk3 | colout '^([^ ]+)\s+([a-z])\s+([\d]+)\s+([\d]+)\s+(.*)\s+([^ ]+)\s+([^ ]+)$' white,black,red,yellow,white,none,none | colout '/dev/null|(?:/usr)?/sbin/nologin' red bold | colout '/home/[^ ]+|(?:/usr)/bin/b?[kac]?sh' green bold
+}
 
 if hash hostnamectl 2>/dev/null; then
 	hostnamectl() {
@@ -62,7 +70,7 @@ if hash zypper 2>/dev/null; then
 		local arg="${1:- -pa}"
 		sudo zypper --table-style ${ZYPPER_TABLE_STYLE:-2} lr $arg | colout -d Spectrum --scale 0,100 \
 		'(^#.*$)|([─│┼])|((?:base|alpha|repo|devel|home|obs|[xyz]|google|fact(?:ory)?)-[^ ]+)|(\bYes\b)|(\bNo\b)|(^\s*\d*)|(\d\d*\s*$)' \
-		white,purple,Hash,green,red,Spectrum,Scale \
+		white,${MACHINE_COLOR##*;},Hash,green,red,Spectrum,Scale \
 		reverse,normal,Spectrum,bold,bold,Spectrum,Scale
 	}
 
@@ -123,40 +131,41 @@ function mount {
 #	white,red,cyan,yellow,blue,cyan,magenta,red,white underline,bold
 #}
 function printenv {
-	command printenv $* | sort | colout -a '([^=]*)(=)(.*)' 199,255,214 normal,bold,normal
+	command printenv $* | colout -a '^([^=]*)(=)(.*)$' ${MACHINE_COLOR##*;},255,214 normal,bold,normal
 }
 
 if hash mediainfo 2>/dev/null; then
 	function mediainfo {
-		command mediainfo "$@" | colout  "(.*)\s\s+:(.*)" white,199 bold,bold | colout '^(General|Video|Audio|Menu|Text).*' magenta reverse
+		command mediainfo "$@" | colout  "(.*)\s\s+:(.*)" white,${MACHINE_COLOR##*;} bold,bold | colout '^(General|Video|Audio|Menu|Text).*' magenta reverse
 	}
 fi
 
-for x in md5{sum,deep,hmac} shasum sha1{sum,deep,hmac} sha224{sum,deep,hmac} sha256{sum,deep,hmac} sha384{sum,deep,hmac} sha512{sum,deep,hmac} whirlpool{deep,sum} tigerdeep; do
-	hash_regex='^(?:(.+): (OK)|(.+): (FAILED))'
-	hash_colors="black,green,white,red"
-
-	if hash $x 2>/dev/null; then
-		case $x in
-			md5sum   ) function md5sum 	 { command md5sum "$@"  	| colout "$hash_regex" "$hash_colors"; } ;;
-			shasum   ) function shasum  	 { command shasum "$@"  	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha1sum  ) function sha1sum 	 { command sha1sum "$@" 	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha1hmac ) function sha1hmac 	 { command sha1hmac "$@" 	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha224sum ) function sha224sum 	 { command sha224sum "$@" | colout "$hash_regex" "$hash_colors"; } ;;
-			sha256sum ) function sha256sum	 { command sha256sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha256hmac ) function sha256hmac { command sha256hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
-			sha384sum ) function sha384sum	 { command sha384sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha384hmac ) function sha384hmac { command sha384hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
-			sha512sum ) function sha512sum	 { command sha512sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
-			sha512hmac ) function sha512hmac { command sha512hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
-			whirlpoolsum ) function whirlpoolsum { command whirlpoolsum "$@"|colout "$hash_regex" "$hash_colors"; } ;;
-			whirlpooldeep ) function whirlpooldeep { command whirlpooldeep "$@" | colout "$hash_regex" "$hash_colors"; } ;;
-			tigerdeep ) function tigerdeep { command tigerdeep "$@" | colout "$hash_regex" "$hash_colors"; } ;;
-
-		esac
-	fi
-	unset x hash_colors hash_regex
-done
+# seems temporarily broken....
+# for x in md5{sum,deep,hmac} shasum sha1{sum,deep,hmac} sha224{sum,deep,hmac} sha256{sum,deep,hmac} sha384{sum,deep,hmac} sha512{sum,deep,hmac} whirlpool{deep,sum} tigerdeep; do
+# 	hash_regex='^(?:(.+): (OK)|(.+): (FAILED))'
+# 	hash_colors="black,green,white,red"
+#
+# 	if hash $x 2>/dev/null; then
+# 		case $x in
+# 			md5sum   ) function md5sum 	 { command md5sum "$@"  	| colout "$hash_regex" "$hash_colors"; } ;;
+# 			shasum   ) function shasum  	 { command shasum "$@"  	| colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha1sum  ) function sha1sum 	 { command sha1sum "$@" 	| colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha1hmac ) function sha1hmac 	 { command sha1hmac "$@" 	| colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha224sum ) function sha224sum 	 { command sha224sum "$@" | colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha256sum ) function sha256sum	 { command sha256sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha256hmac ) function sha256hmac { command sha256hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha384sum ) function sha384sum	 { command sha384sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha384hmac ) function sha384hmac { command sha384hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha512sum ) function sha512sum	 { command sha512sum "$@"	| colout "$hash_regex" "$hash_colors"; } ;;
+# 			sha512hmac ) function sha512hmac { command sha512hmac "$@"| colout "$hash_regex" "$hash_colors"; } ;;
+# 			whirlpoolsum ) function whirlpoolsum { command whirlpoolsum "$@"|colout "$hash_regex" "$hash_colors"; } ;;
+# 			whirlpooldeep ) function whirlpooldeep { command whirlpooldeep "$@" | colout "$hash_regex" "$hash_colors"; } ;;
+# 			tigerdeep ) function tigerdeep { command tigerdeep "$@" | colout "$hash_regex" "$hash_colors"; } ;;
+#
+# 		esac
+# 	fi
+# 	unset x hash_colors hash_regex
+# done
 
 if hash iptables 2>/dev/null; then
 	function iptables {
