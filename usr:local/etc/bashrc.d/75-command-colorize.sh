@@ -2,7 +2,7 @@
 # Sparkles & Poniez for all.
 # Dan Reidy <dubkat@gmail.com>
 # https://github.com/dubkat
-ULE_VERSION['colorize']=16.09.27
+ULE_VERSION['colorize']=16.10.02
 export ULE_RUNTIME=75
 
 if ! hash colout 2>/dev/null; then return; fi
@@ -13,19 +13,6 @@ if [ "x${COLORIZE}" != "xyes" ]; then return; fi
 
 if [ -d "/usr/share/gimp/2.0/palettes" ]; then
     alias colout="colout -P /usr/share/gimp/2.0/palettes";
-fi
-
-if [ -z "$MACHINE_COLOR" ]; then
-	export MACHINE_COLOR="$(unique_host_color)";
-fi
-
-# a few things do it for us with no work.
-if hash colordiff 2>/dev/null; then
-	alias diff="`command -v colordiff`"
-fi
-
-if hash colorsvn 2>/dev/null; then
-	alias svn="`command -v colorsvn`"
 fi
 
 userlist() {

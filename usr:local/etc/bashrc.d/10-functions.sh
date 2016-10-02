@@ -1,6 +1,6 @@
 # 99-functions.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat@gmail.com>
-ULE_VERSION['functions']=16.09.02
+ULE_VERSION['functions']=16.10.02
 export ULE_RUNTIME=4
 
 function _ls ()
@@ -49,11 +49,13 @@ rand() {
 
 
 generate_path() {
-  local user="/opt/local/libexec/gnubin /opt/local/bin /usr/local/bin /usr/games /opt/bin /usr/bin /bin";
+  local user="/opt/local/libexec/gnubin /opt/local/bin /usr/local/bin /usr/games"
+  user+="/usr/games/bin /opt/bin /usr/bin /bin";
+
   local admin="/usr/local/sbin /opt/local/sbin /opt/sbin /usr/sbin /sbin";
   #local portage="$(/usr/bin/gcc-config -B) /lib64/rc/bin";
   local path;
-  if ! groups | /bin/grep -qE '\b(root|wheel|adm|operator)\b'; then
+  if ! groups | /bin/grep -qE '\b(root|wheel|adm|operator|admin)\b'; then
     unset admin
   fi
   if ! groups | /bin/grep -qE '\b(portage)\b'; then
@@ -156,23 +158,23 @@ crypto_backend()
     rpm -qf --queryformat "%{VENDOR}\t%{N}/%{V}:\t$backend\n" $backend;
   done
 }
-
-session_id() {
-  if [ -n "$ULE_SESSION_ID" ]; then
-    echo "export ULE_SESSION_ID=$ULE_SESSION_ID";
-    return;
-  fi
-
-  if hash uuid 2>/dev/null; then
-    uuid=$(uuid -v1);
-  elif hash uuidgen 2>/dev/null; then
-    uuid=$(uuidgen -t);
-  else
-    uuid="$(random.sh 192 2>/dev/null | tr '/' '+')"
-  fi
-  export ULE_SESSION_ID=$uuid
-  echo "export ULE_SESSION_ID=$uuid"
-}
+#
+# session_id() {
+#   if [ -n "$ULE_SESSION_ID" ]; then
+#     echo "export ULE_SESSION_ID=$ULE_SESSION_ID";
+#     return;
+#   fi
+#
+#   if hash uuid 2>/dev/null; then
+#     uuid=$(uuid -v1);
+#   elif hash uuidgen 2>/dev/null; then
+#     uuid=$(uuidgen -t);
+#   else
+#     uuid="$(random.sh 192 2>/dev/null | tr '/' '+')"
+#   fi
+#   export ULE_SESSION_ID=$uuid
+#   echo "export ULE_SESSION_ID=$uuid"
+# }
 
 # create user designated tmpdir location, if it doesn't exist.
 make_user_tmpdir() {
@@ -259,4 +261,5 @@ ssh_supported_modes() {
 uledate() {
     date "+%y.%m.%d" | colout '^([0-9]{2})\.([0-9]{2})\.([0-9]{2})$' Hash,Hash,Hash
 }
+
 unset ULE_RUNTIME
