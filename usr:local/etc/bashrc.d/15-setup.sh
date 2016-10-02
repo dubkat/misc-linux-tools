@@ -1,18 +1,17 @@
 # 20-setup.sh
 # Copyright (C) 2015-2016 Dan Reidy <dubkat+github@gmail.com>
-ULE_VERSION['setup']=16.07.02
+ULE_VERSION['setup']=16.10.01
 export ULE_RUNTIME=5
 
 if [ -n "$TERM" ]; then
   if [[ $(tput colors) -ge 88 ]]; then
     if [ "$DIRCOLORS_THEME" = "system" ]; then
-        ||:
+        eval `dircolors /etc/DIR_COLORS`;
     elif [ -r ${ULE_SETTING['ETC_DIR']}/${DIRCOLORS_THEME}.colors ]; then
       eval `dircolors -b ${ULE_SETTING['ETC_DIR']}/${DIRCOLORS_THEME}.colors`
     fi
   fi
 fi
-
 
 eval `generate_path`
 eval `make_user_tmpdir`
