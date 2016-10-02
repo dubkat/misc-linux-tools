@@ -6,8 +6,8 @@ export ULE_RUNTIME=5
 if [ -n "$TERM" ]; then
   if [[ $(tput colors) -ge 88 ]]; then
     if [ "$DIRCOLORS_THEME" = "system" ]; then
-        eval `dircolors /etc/DIR_COLORS`;
-    elif [ -r ${ULE_SETTING['ETC_DIR']}/${DIRCOLORS_THEME}.colors ]; then
+        eval `dircolors -b /etc/DIR_COLORS`;
+    elif [ -f "${ULE_SETTING['ETC_DIR']}/${DIRCOLORS_THEME}.colors" ]; then
       eval `dircolors -b ${ULE_SETTING['ETC_DIR']}/${DIRCOLORS_THEME}.colors`
     fi
   fi
