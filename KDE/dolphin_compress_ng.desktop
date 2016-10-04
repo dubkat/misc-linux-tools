@@ -1,3 +1,8 @@
+# KDE 4/5 Dolphin Service Menu for updated compression
+# Dan Reidy <dubkat@gmail.com>
+# http://github.com/dubkat
+#######################################################
+
 [Desktop Entry]
 Type=Service
 ServiceTypes=KonqPopupMenu/Plugin
@@ -8,15 +13,10 @@ X-KDE-Submenu=Compress
 X-KDE-StartupNotify=false
 X-KDE-Priority=TopLevel
 
-
-
 [Desktop Action compressHereAsTarXZ]
 Name=Here as tar.xz
 Icon=ark
 Exec=ark --changetofirstpath --add --autofilename tar.xz %F
-
-
-
 
 [Desktop Action compressHereAsTarBZ]
 Name=Here as tar.bz2
