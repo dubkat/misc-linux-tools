@@ -46,6 +46,10 @@ my $group_by_year = TRUE;
 # auto delete camera generated thumnails.
 my $delete_thumbs = TRUE;
 
+# transcode implies renaming.
+my $transcode_videos = FALSE;
+my $rename_videos = TRUE;
+
 sub file_processor {
   my $in_file = shift;
 
@@ -134,40 +138,48 @@ sub file_processor {
   }
 
   #rename($_, $newfile);
-  if ($_ !~ /\.mp4$/ix ) {
-    my $vinfo = ImageInfo($_);
-    my $vcodec = undef;
-    my $acodec = undef;
-    #require Data::Dumper;
-    #print Dumper $info;
+  if ( $transcode_videos ) {
+      if ($_ !~ /\.mp4$/ix ) {
+        my $vinfo = ImageInfo($_);
+        my $vcodec = undef;
+        my $acodec = undef;
+        #require Data::Dumper;
+        #print Dumper $info;
 
-    if( $vinfo->{'CompressorID'} eq 'avc1' ) {
-      #video is already mp4 compatable.
-      $vcodec = "copy";
-    } else {
-      $vcodec = "libx264";
-    }
+        if( $vinfo->{'CompressorID'} eq 'avc1' ) {
+          #video is already mp4 compatable.
+          $vcodec = "copy";
+        } else {
+          $vcodec = "libx264";
+        }
 
-    if ($vinfo->{'AudioFormat'} =~ /^aac|mp4a$/ix ) {
-      $acodec = "copy";
-    } else {
-      $acodec = "aac";
+        if ($vinfo->{'AudioFormat'} =~ /^aac|mp4a$/ix ) {
+          $acodec = "copy";
+        } else {
+          $acodec = "aac";
+        }
+        system("ffmpeg", "-i", $_, "-metadata", "creation_time='$media_touch'", "-c:v", $vcodec, "-c:a", $acodec, $newfile);
+        $ret = $? >> 8;
+        if ($ret != 0 ) {
+            die("Return: $ret. Failed to convert $_ to $newfile");
+        }
+        unlink $_;
+        system("touch", "-d", $media_touch, $newfile);
+        $ret = $? >> 8;
+        if ($ret != 0 ) {
+            die("Return: $ret. Failed to touch $newfile with date '$media_touch'");
+        }
+        next;
+      }
     }
-    system("ffmpeg", "-i", $_, "-metadata", "creation_time='$media_touch'", "-c:v", $vcodec, "-c:a", $acodec, $newfile);
-    $ret = $? >> 8;
-    if ($ret != 0 ) {
-        die("Return: $ret. Failed to convert $_ to $newfile");
+    elsif ( $rename_videos ) {
+        system("mv", "-v", $_, $newfile);
+        system("touch", "-d", $media_touch, $newfile);
+        $ret = $? >> 8;
+        if ($ret != 0 ) {
+            die("Return: $ret. Failed to touch $newfile with date '$media_touch'");
+        }
     }
-    unlink $_;
-    system("touch", "-d", $media_touch, $newfile);
-    $ret = $? >> 8;
-    if ($ret != 0 ) {
-        die("Return: $ret. Failed to touch $newfile with date '$media_touch'");
-    }
-
-    next;
-  }
-
 }
 
 

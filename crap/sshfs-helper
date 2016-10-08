@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+test -r /etc/sysconfig/sshfs && . /etc/sysconfig/sshfs
+
+config="$(xdg-user-dir)/.config/sshfs.conf"
+
+
+while read id opts host; do
+    if echo $id | grep -Eq '^#'; then
+        continue
+    fi
+    if test -z "$id"; then continue; fi
+    if test -z "$opts"; then continue; fi
+    if test -z "$host"; then continue; fi
+
+    options="$SSHFS_OPTS_DEFAULT"
+    if [ "$opts" != "-" ]; then
+        options+="$opts"
+    fi
+    mkdir -p ${SSHFS_OPTS_MOUNT}/${id} 2>/dev/null ||:
+
+    #echo "Mounting $host with options: $options"
+
+    echo "/usr/bin/sshfs ${host}: ${SSHFS_OPTS_MOUNT}/${id} -o${options}"
+    /usr/bin/sshfs ${host}: ${SSHFS_OPTS_MOUNT}/${id} -o${options} ||:
+
+done < $config
